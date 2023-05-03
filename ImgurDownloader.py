@@ -15,6 +15,7 @@ import datetime
 # To change these settings, write them as an entry in settings.ini.
 # Default settings:
 default_settings = {
+    'check_for_DB_missmatch': False,
     'string_length': 5,
     'max_threads_percent': 90,
     'max_iterations': -1,
@@ -30,6 +31,7 @@ default_settings = {
 
 config = configparser.ConfigParser()
 config.read('settings.ini')
+check_for_DB_missmatch = int(config.get('DEFAULT', 'check_for_DB_missmatch', fallback=default_settings['check_for_DB_missmatch']))
 
 string_length = int(config.get('DEFAULT', 'string_length', fallback=default_settings['string_length']))
 max_threads_percent = int(config.get('DEFAULT', 'max_threads_percent', fallback=default_settings['max_threads_percent']))

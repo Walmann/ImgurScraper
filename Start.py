@@ -44,5 +44,5 @@ if latest_commit_sha != current_commit_sha:
     # Restart the script
     os.execv(sys.executable, [sys.executable, "ImgurDownloader.py"])
 else:
-    print("Repository is up-to-date. ")
+    print("Repository is up-to-date.")
     os.system("python3 ImgurDownloader.py")
