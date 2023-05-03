@@ -11,6 +11,19 @@ import shutil
 import datetime
 
 
+# Default settings:
+string_length = 5
+max_threads_percent = 90
+max_iterations = -1
+download_folder_name = "Archive"
+DB_files_path_prefix = "DB"
+CheckedURLsFile      = "0checkedURLs.txt"
+RedirectURLs         = "0RedirectURLs.txt"
+ErrorFile            = "0ErrorStings.txt"
+RetryStringsFile     = "0RetryStrings.txt"
+max_queue_size       = 500
+
+
 config = configparser.ConfigParser()
 config.read('settings.ini')
 
