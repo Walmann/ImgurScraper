@@ -33,13 +33,15 @@ config.read('settings.ini')
 string_length = int(config.get('DEFAULT', 'string_length', fallback=default_settings['string_length']))
 max_threads_percent = int(config.get('DEFAULT', 'max_threads_percent', fallback=default_settings['max_threads_percent']))
 max_iterations = int(config.get('DEFAULT', 'max_iterations', fallback=default_settings['max_iterations']))
+
 download_folder_name = config.get('DEFAULT', 'download_folder_name', fallback=default_settings['download_folder_name'])
 download_folder_location = config.get('DEFAULT', 'download_folder_location', fallback=default_settings['download_folder_location'])
 DB_files_path_prefix = config.get('DEFAULT', 'DB_files_path_prefix', fallback=default_settings['DB_files_path_prefix'])
-CheckedURLsFile = f"{DB_files_path_prefix}/{config.get('DEFAULT', 'CheckedURLsFile', fallback=default_settings['CheckedURLsFile'])}"
-RedirectURLs = f"{DB_files_path_prefix}/{config.get('DEFAULT', 'RedirectURLs', fallback=default_settings['RedirectURLs'])}"
-ErrorFile = f"{DB_files_path_prefix}/{config.get('DEFAULT', 'ErrorFile', fallback=default_settings['ErrorFile'])}"
-RetryStringsFile = f"{DB_files_path_prefix}/{config.get('DEFAULT', 'RetryStringsFile', fallback=default_settings['RetryStringsFile'])}"
+
+CheckedURLsFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'CheckedURLsFile', fallback=default_settings['CheckedURLsFile'])}"
+RedirectURLs = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'RedirectURLs', fallback=default_settings['RedirectURLs'])}"
+ErrorFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'ErrorFile', fallback=default_settings['ErrorFile'])}"
+RetryStringsFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'RetryStringsFile', fallback=default_settings['RetryStringsFile'])}"
 max_queue_size = int(config.get('DEFAULT', 'max_queue_size', fallback=default_settings['max_queue_size']))
 
 CharacterListA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
