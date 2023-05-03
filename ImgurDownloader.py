@@ -14,16 +14,16 @@ import datetime
 if not os.path.isfile("settings.ini"):
     with open("settings.ini", "w") as file:
         file.write("""
-        ; [SYSTEM]
-        ; sha =
+; [SYSTEM]
+; sha =
 
-        [DEFAULT]
-        ; Check the Settings section in ImgurDownloader.py to see what you can write here.
-        ; This example sets the location of the Archive.
-        ;download_folder_location    = . 
+[DEFAULT]
+; Check the Settings section in ImgurDownloader.py to see what you can write here.
+; This example sets the location of the Archive.
+;download_folder_location    = . 
 
 
-        ;THIS IS A TEST
+;THIS IS A TEST
         """)
 
 
