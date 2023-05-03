@@ -26,7 +26,7 @@ config.read("settings.ini")
 local_settings_sha = git.Repo(search_parent_directories=True).git.hash_object("settings.ini")
 
 # If the latest commit SHA or the settings.ini SHA is different from the current commit SHA
-if latest_commit_sha != current_commit_sha or local_settings_sha != config.get("general", "sha"):
+if latest_commit_sha != current_commit_sha or local_settings_sha != config.get("DEFAULT", "sha"):
     print("Updating repository and settings.ini...")
 
     # Pull the latest changes from the repository
@@ -37,7 +37,7 @@ if latest_commit_sha != current_commit_sha or local_settings_sha != config.get("
 
     # Merge changes in the settings.ini file
     config.read("settings.ini")
-    config.set("general", "sha", local_settings_sha)
+    config.set("DEFAULT", "sha", local_settings_sha)
     with open("settings.ini", "w") as configfile:
         config.write(configfile)
 
