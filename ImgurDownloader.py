@@ -11,7 +11,8 @@ import shutil
 import datetime
 
 
-
+## SETTINGS
+# To change these settings, write them as an entry in settings.ini.
 # Default settings:
 default_settings = {
     'string_length': 5,
