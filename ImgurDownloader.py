@@ -14,20 +14,45 @@ import datetime
 if not os.path.isfile("settings.ini"):
     with open("settings.ini", "w") as file:
         file.write("""
-; [SYSTEM]
-; sha =
-
 [DEFAULT]
-; Check the Settings section in ImgurDownloader.py to see what you can write here.
-; This example sets the location of the Archive.
+
+;Check for missmatch between the Database and the actual files inside of the Archive. 
+;check_for_DB_missmatch = False
+
+; Length of string. Example i.imgur.com/AAAAA.jpg
+;string_length = 5
+
+; Percentage of CPU to use
+;max_threads_percent = 90
+
+; Number of times to run iterations towards new URLS.
+; This is mostly for debugging. 
+; Set to -1 for infinite iterations
+;max_iterations = -1
+
+; Max Queue size:
+; max_queue_size = 500
+
+; File locations:
+
+; Download folder location. 
+; DO NOT USE "/" AT THE END!
+; To just use Current Dir, enter only a punctationmark.
 ;download_folder_location    = . 
 
 
-;THIS IS A TEST
-        """)
+;download_folder_name        = Archive ; If this is just a work, a dir wil be craeted in Current working directory, if it is a path it will use the Path.
+;DB_files_path_prefix = DB
+;CheckedURLsFile      = 0checkedURLs.txt
+;RedirectURLs         = 0RedirectURLs.txt
+;ErrorFile            = 0ErrorStings.txt
+;RetryStringsFile     = 0RetryStrings.txt
+
+""")
+        print("Settings.ini is now created. Rerun the script after editing the settings.")
 
 
-## SETTINGS
+# SETTINGS
 # To change these settings, write them as an entry in settings.ini.
 # Default settings:
 default_settings = {
@@ -67,8 +92,6 @@ download_folder = f"{download_folder_location}/{download_folder_name}"
 
 CharacterListA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 url_base = "https://i.imgur.com/"
-
-
 
 
 # # File locations:
@@ -201,17 +224,18 @@ def update_terminal():
         for error in footer[-3:]:
             print(str(error) + "\n")
 
-
     except Exception as e:
         # print(e)
         write_error_string(error=e)
         raise Exception(e)
         # exit()
 
+
 def fetch_checked_file(StringX):
     file_prefix = StringX[:-2]  # Use the first N-2 characters of the string as the prefix for the file name
     file_path = f"./DB/{file_prefix}.txt"  # Construct the file path using the prefix
     return file_path
+
 
 def is_string_used(string, firstRun=False):
     # if not os.path.exists(Checked_Strings_File):
@@ -228,6 +252,7 @@ def is_string_used(string, firstRun=False):
         with open(fetch_checked_file(string), "w+") as f:
             f.write("")
         is_string_used(string, firstRun=firstRun)
+
 
 def is_url_redirect(string):
     if not os.path.exists(RedirectURLs):
@@ -254,6 +279,7 @@ def write_redirect_url(string):
     with open("RedirectURLs.txt", 'a+') as f:
         f.write(string + '\n')
     write_string(string)
+
 
 def write_retry_strings(string):
     with open("RetryStrings.txt", "a+") as f:
@@ -295,7 +321,7 @@ def compare_files():
 
 def download_image(string, response, workerID):
     global total_downloaded
-    
+
     update_worker_status(message=f"Getting file extension", workerID=workerID)
     file_extension = get_file_extension(response)
     file_name = string + file_extension
@@ -350,7 +376,7 @@ def update_worker_status(message, workerID):
 #     response = requests.get(url, allow_redirects=False)
 #     return response
 
-def check_links(current_worker_info, retries= 0, response = None):
+def check_links(current_worker_info, retries=0, response=None):
     global total_tested
     global current_workers
     global ErrorLogs
@@ -358,8 +384,7 @@ def check_links(current_worker_info, retries= 0, response = None):
     StringX = current_worker_info["StringX"]  # Set string X from current_worker_info
     worker_status = current_worker_info["current_message"]
     workerID = current_worker_info["workerID"]
-    
-    
+
     if retries > 3:
         try:
             update_worker_status("String failed. Writing down string and closing down.", workerID)
@@ -376,7 +401,7 @@ def check_links(current_worker_info, retries= 0, response = None):
         update_worker_status("String is already used. Closing this worker.", workerID)
         total_tested += 1
         return
-    
+
     try:
         response_status = 0
         update_worker_status(f"Connecting to URL, retries: {retries}", workerID)
@@ -384,13 +409,13 @@ def check_links(current_worker_info, retries= 0, response = None):
         response = requests.get(url, allow_redirects=False, timeout=15)
         response_status = response.status_code
         update_worker_status(f"Finished connecting to URL, retries: {retries}", workerID)
-    
+
     except requests.exceptions.SSLError as e:
         update_worker_status(f"Got SSLError. String: {StringX}, . Retries left: {retries}", workerID)
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
-        retries +=1
-        check_links(current_worker_info = current_worker_info, retries=retries, response=response)
+        retries += 1
+        check_links(current_worker_info=current_worker_info, retries=retries, response=response)
 
     except HTTPSConnectionPool as e:
         update_worker_status(message=f"Got timeout. Adding to Retry list for later.", workerID=workerID)
@@ -403,7 +428,6 @@ def check_links(current_worker_info, retries= 0, response = None):
         write_retry_strings(StringX)
         pass
 
-
     if response_status == 200:
         update_worker_status("Got Status code 200. Downloading image. ", workerID)
         download_image(StringX, response, workerID)
@@ -414,36 +438,37 @@ def check_links(current_worker_info, retries= 0, response = None):
         write_string(StringX)
         total_tested += 1
         return
-    
+
     if response_status == 429:
         update_worker_status(f"Got Status code {response_status}, blocked by host. Retrying", workerID)
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
         retries += 1
-        check_links(current_worker_info= current_worker_info, retires=retries, response=response)
+        check_links(current_worker_info=current_worker_info, retires=retries, response=response)
 
     if response_status == 104:
         update_worker_status(f"Got Status code {response_status}, Connection Reset From Host. Retries left: {retries}", workerID)
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
-        retries +=1
-        check_links(current_worker_info = current_worker_info, retires=retries, response=response)
+        retries += 1
+        check_links(current_worker_info=current_worker_info, retires=retries, response=response)
 
     if response_status == 500:
         update_worker_status(f"Got Status code {response_status}, Connection Reset From Host. Retries left: {retries}", workerID)
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
-        retries +=1
-        check_links(current_worker_info = current_worker_info, retries=retries, response=response)
+        retries += 1
+        check_links(current_worker_info=current_worker_info, retries=retries, response=response)
 
     update_worker_status(message=f"Got unknow status code: {response_status}. Writing down error, put String into file of strings to try later, then continue.", workerID=workerID)
     # write_error_string(message=f"Error with String {StringX}. Got unknown Status code: {response_status}")
     # write_retry_strings(StringX)
 
     time.sleep(5)
-    retries +=1
-    check_links(current_worker_info = current_worker_info, retries=retries, response=response)
+    retries += 1
+    check_links(current_worker_info=current_worker_info, retries=retries, response=response)
     return
+
 
 def worker():
     global ErrorLogs
@@ -492,14 +517,12 @@ def fetch_files_number_and_size():
             global CheckedURLFileLength
             global ErrorFileLength
 
-
             archive_files_amount = 0
-
 
             # archive_file_limit = 1000000
             # if archive_files_amount >= archive_file_limit:
             #     archive_files_amount = f"Over {archive_file_limit}"
-            # else: 
+            # else:
             #     archive_files_amount = sum([len(files) for r, d, files in os.walk(download_folder)])
 
             # redirectFileLength = get_file_length(RedirectURLs)
