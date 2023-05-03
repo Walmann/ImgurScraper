@@ -11,36 +11,39 @@ import shutil
 import datetime
 
 
-# Default settings:
-string_length = 5
-max_threads_percent = 90
-max_iterations = -1
-download_folder_name = "Archive"
-DB_files_path_prefix = "DB"
-CheckedURLsFile      = "0checkedURLs.txt"
-RedirectURLs         = "0RedirectURLs.txt"
-ErrorFile            = "0ErrorStings.txt"
-RetryStringsFile     = "0RetryStrings.txt"
-max_queue_size       = 500
 
+# Default settings:
+default_settings = {
+    'string_length': 5,
+    'max_threads_percent': 90,
+    'max_iterations': -1,
+    'download_folder_location': "./",
+    'download_folder_name': "Archive",
+    'DB_files_path_prefix': "DB",
+    'CheckedURLsFile': "0checkedURLs.txt",
+    'RedirectURLs': "0RedirectURLs.txt",
+    'ErrorFile': "0ErrorStings.txt",
+    'RetryStringsFile': "0RetryStrings.txt",
+    'max_queue_size': 500,
+}
 
 config = configparser.ConfigParser()
 config.read('settings.ini')
 
+string_length = int(config.get('DEFAULT', 'string_length', fallback=default_settings['string_length']))
+max_threads_percent = int(config.get('DEFAULT', 'max_threads_percent', fallback=default_settings['max_threads_percent']))
+max_iterations = int(config.get('DEFAULT', 'max_iterations', fallback=default_settings['max_iterations']))
+download_folder_name = config.get('DEFAULT', 'download_folder_name', fallback=default_settings['download_folder_name'])
+download_folder_location = config.get('DEFAULT', 'download_folder_location', fallback=default_settings['download_folder_location'])
+DB_files_path_prefix = config.get('DEFAULT', 'DB_files_path_prefix', fallback=default_settings['DB_files_path_prefix'])
+CheckedURLsFile = f"{DB_files_path_prefix}/{config.get('DEFAULT', 'CheckedURLsFile', fallback=default_settings['CheckedURLsFile'])}"
+RedirectURLs = f"{DB_files_path_prefix}/{config.get('DEFAULT', 'RedirectURLs', fallback=default_settings['RedirectURLs'])}"
+ErrorFile = f"{DB_files_path_prefix}/{config.get('DEFAULT', 'ErrorFile', fallback=default_settings['ErrorFile'])}"
+RetryStringsFile = f"{DB_files_path_prefix}/{config.get('DEFAULT', 'RetryStringsFile', fallback=default_settings['RetryStringsFile'])}"
+max_queue_size = int(config.get('DEFAULT', 'max_queue_size', fallback=default_settings['max_queue_size']))
+
 CharacterListA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 url_base = "https://i.imgur.com/"
-
-string_length = int(config['DEFAULT']['string_length'])
-max_iterations = int(config['DEFAULT']['max_iterations'])
-max_threads_percent = int(config['DEFAULT']['max_threads_percent'])
-max_queue_size = int(config['DEFAULT']['max_queue_size'])
-download_folder = str(config['DEFAULT']['download_folder_name'])
-
-DB_files_path = str(config['DEFAULT']['DB_files_path_prefix'])
-CheckedURLsFile = f"{DB_files_path}/{str(config['DEFAULT']['CheckedURLsFile'])}"
-RedirectURLs = f"{DB_files_path}/{str(config['DEFAULT']['RedirectURLs'])}"
-ErrorFile = f"{DB_files_path}/{str(config['DEFAULT']['ErrorFile'])}"
-RetryStringsFile = f"{DB_files_path}/{str(config['DEFAULT']['RetryStringsFile'])}"
 
 # # File locations:
 # DB_files_path = "DB"
