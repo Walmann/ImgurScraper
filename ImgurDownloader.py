@@ -17,7 +17,7 @@ default_settings = {
     'string_length': 5,
     'max_threads_percent': 90,
     'max_iterations': -1,
-    'download_folder_location': "./",
+    'download_folder_location': ".",
     'download_folder_name': "Archive",
     'DB_files_path_prefix': "DB",
     'CheckedURLsFile': "0checkedURLs.txt",
@@ -43,9 +43,14 @@ RedirectURLs = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('
 ErrorFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'ErrorFile', fallback=default_settings['ErrorFile'])}"
 RetryStringsFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'RetryStringsFile', fallback=default_settings['RetryStringsFile'])}"
 max_queue_size = int(config.get('DEFAULT', 'max_queue_size', fallback=default_settings['max_queue_size']))
+download_folder = f"{download_folder_location}/{download_folder_name}"
+
 
 CharacterListA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 url_base = "https://i.imgur.com/"
+
+
+
 
 # # File locations:
 # DB_files_path = "DB"
