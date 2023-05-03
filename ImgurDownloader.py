@@ -11,6 +11,22 @@ import shutil
 import datetime
 
 
+if not os.path.isfile("settings.ini"):
+    with open("settings.ini", "w") as file:
+        file.write("""
+        ; [SYSTEM]
+        ; sha =
+
+        [DEFAULT]
+        ; Check the Settings section in ImgurDownloader.py to see what you can write here.
+        ; This example sets the location of the Archive.
+        ;download_folder_location    = . 
+
+
+        ;THIS IS A TEST
+        """)
+
+
 ## SETTINGS
 # To change these settings, write them as an entry in settings.ini.
 # Default settings:
