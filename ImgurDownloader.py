@@ -203,6 +203,7 @@ def update_terminal():
     global CheckedURLFileLength
     global ErrorFileLength
     global latest_string
+    global StartedWork
     pppIterations = 0
 
     estimated_latest_string = get_last_file_name(download_folder)
