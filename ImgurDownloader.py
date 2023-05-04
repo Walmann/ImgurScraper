@@ -622,7 +622,7 @@ def check_links(current_worker_info, retries=0, response=None):
 
 def check_links_start(current_worker_info):
     while True:
-        current_worker_info["current_message"] = f"Now i will get a job from the Queue!"
+        current_worker_info["current_message"] = f"Now i wait for a job from the Queue!"
         StringX = work_queue.get()
         current_worker_info["StringX"] = StringX
         # current_worker_info["current_message"] = f"Got job with string {StringX}"
@@ -695,7 +695,7 @@ def fetch_files_number_and_size():
 
         except Exception as e:
             temp = "tempp"
-            write_error_string(message=f"Error updateing stats: {e}")
+            write_error_string(message=f"Error updating stats: {e}")
             raise Exception(e)
 
 
