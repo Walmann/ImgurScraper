@@ -132,7 +132,7 @@ max_combination_gen_size = int(
     )
 )
 download_folder = f"{download_folder_location}/{download_folder_name}"
-
+DB_Folder = f"{download_folder_location}/{DB_files_path_prefix}"
 
 CharacterListA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 url_base = "https://i.imgur.com/"
@@ -214,6 +214,10 @@ def update_terminal():
     global ErrorFileLength
     global latest_string
     pppIterations = 0
+
+    estimated_latest_string = get_last_file_name(download_folder)
+
+
     while True:
         try:
             # os.system("clr")
@@ -250,6 +254,7 @@ def update_terminal():
             totals += f"Total iterations: {total_iterations}\n"
             totals += f"Latest Iteration: {latest_string}\n"
             totals += f"Iterations since last refresh: {total_iterations-pppIterations}\n"
+            totals += f"Estimated latest string: {estimated_latest_string}\n"
 
             totals += "\n"
             totals += f"Total number of files in archive folder: {str(archive_files_amount)}\n"
@@ -282,13 +287,33 @@ def update_terminal():
             raise Exception(e)
             # exit()
 
+def get_last_file_name(directory):
+    # Get a list of all files in the directory
+    file_list = os.listdir(directory)
+
+    # Sort the files by name
+    sorted_files = sorted(file_list)
+
+    # Get the last file in the list
+    last_folder_name = sorted_files[-1]
+
+    file_list = os.listdir(f"{directory}\{last_folder_name}")
+    
+    # Sort the files by name
+    sorted_files = sorted(file_list)
+    
+    # Get the last file in the list
+    last_file_name = sorted_files[-1]
+    return last_file_name.split(".")[0]
+
+
 
 def fetch_checked_file(StringX):
     file_prefix = StringX[
         :-2
     ]  # Use the first N-2 characters of the string as the prefix for the file name
     # Construct the file path using the prefix
-    file_path = f"{download_folder_location}/{DB_files_path_prefix}/{file_prefix}.txt"
+    file_path = f"{DB_Folder}/{file_prefix}.txt"
     return file_path
 
 
