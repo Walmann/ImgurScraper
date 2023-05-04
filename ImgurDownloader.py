@@ -175,8 +175,6 @@ def update_terminal():
             header = "\n\n\n\n\n IMGUR DOWNLOADER"
             header += f"Last refresh: {datetime.datetime.now().strftime('%H:%M:%S')}"
 
-            workers = "Workers:"
-
             worker_rows = []
 
             # Create the worker section
