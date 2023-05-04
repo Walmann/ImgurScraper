@@ -1,3 +1,4 @@
+import sys
 import itertools
 import requests
 import configparser
@@ -8,6 +9,9 @@ import imghdr
 import time
 import datetime
 import uuid
+
+
+
 
 
 if not os.path.isfile("settings.ini"):
@@ -160,6 +164,7 @@ total_tested = 0
 archive_files_amount = 0
 total_iterations = 0
 archive_files_size = ""
+latest_string = ""
 ErrorLogs = []
 
 current_workers = {}
@@ -256,6 +261,7 @@ def update_terminal():
             for error in footer[-3:]:
                 print(str(error) + "\n")
 
+            write_last_info()
             time.sleep(0.5)
 
         except Exception as e:
@@ -688,6 +694,7 @@ def fetch_files_number_and_size():
 def create_strings(current_worker_info):
     global max_iterations
     global total_iterations
+    global latest_string
     try:
         # firstCheckForChecked = True
         # stringsfurst = is_string_used(firstRun=True)
@@ -701,6 +708,7 @@ def create_strings(current_worker_info):
         # repeat until
         update_worker_status(message="I wil now start generating combinations.", current_worker_info=current_worker_info)
         for combination in itertools.product(CharacterListA, repeat=string_length):
+            latest_string = combination
             StringX = "".join(combination)
             update_worker_status(message=f"I have made string {StringX}", current_worker_info=current_worker_info)
             total_iterations +=1
@@ -778,14 +786,41 @@ def create_new_worker(work):
     current_worker_info["current_message"] = f"Got all my settings!"
     t.start()
 
+def write_last_info(mode=""):
+    global total_iterations
+    global latest_string
+
+    filePath = f"{download_folder_location}/{DB_files_path_prefix}/00LastStringX.txt"
+    try: 
+        if mode == "Restore":
+            import ast
+            
+            with open(filePath, "r+") as file:
+                # latest_string, total_iterations = tuple(file.read())
+                tuple_value = ast.literal_eval(file.read())
+                latest_string, total_iterations = tuple_value
+                return
+    except FileNotFoundError:
+        return
+    with open(filePath, "w+") as file:
+        tuple = (latest_string, total_iterations)
+        file.write(str(tuple))
+
+
 
 os.system("clear")
+
+# Load last StringX
+write_last_info(mode="Restore")
+
 
 create_new_worker(work="update_terminal")
 create_new_worker(work="create_strings")
 create_new_worker(work="fetch_files_number_and_size")
 for i in range(max_threads - 3):  # -1 gets reserved for updating filesize etc
     create_new_worker(work="check_links")
+
+
 
 
 # Clean up the checkedURLs.txt for files that are missing in Archive
