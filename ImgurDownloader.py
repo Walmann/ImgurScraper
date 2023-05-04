@@ -697,8 +697,6 @@ def create_strings(current_worker_info):
     global total_iterations
     global latest_string
     try:
-        # firstCheckForChecked = True
-        # stringsfurst = is_string_used(firstRun=True)
 
         update_worker_status(message="I will now start generating combinations.", current_worker_info=current_worker_info)
         Caught_up_to_previous_value = False
