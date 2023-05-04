@@ -138,16 +138,8 @@ CharacterListA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 url_base = "https://i.imgur.com/"
 
 
-# # File locations:
-# DB_files_path = "DB"
-# CheckedURLsFile = f"{DB_files_path}/0checkedURLs.txt"
-# RedirectURLs = f"{DB_files_path}/0RedirectURLs.txt"
-# ErrorFile = f"{DB_files_path}/0ErrorStings.txt"
-# RetryStringsFile = f"{DB_files_path}/0RetryStrings.txt"
-# File locations:
-file_name = ""
-# Checked_Strings_File = "checkedURLs.txt"
 
+file_name = ""
 redirectFileLength = 0
 CheckedURLFileLength = 0
 ErrorFileLength = 0
@@ -396,35 +388,6 @@ def write_retry_strings(string):
     write_string(string)
 
 
-# Check files already downloaded still exists
-# def compare_files():
-#     archive_files = []
-#     checked_files = []
-
-#     # Get list of files in Archive folder
-#     for root, dirs, files in os.walk(download_folder):
-#         for file in files:
-#             archive_files.append(file.split(".")[0])
-
-#     # Get list of files in checkedURLs.txt
-#     with open(CheckedURLsFile, "r") as f:
-#         for line in f:
-#             checked_files.append(line.strip())
-
-#     # Find files that exist in checkedURLs.txt but not in Archive folder
-#     diff_files = set(checked_files) - set(archive_files)
-
-#     # Remove entries that are missing in the archive list from the checked_files list
-#     for file in diff_files:
-#         checked_files.remove(file)
-
-#     # Remove entries that are missing in the archive list from the "checkedURLs.txt" file
-#     with open(CheckedURLsFile, "w") as f:
-#         for file in checked_files:
-#             f.write(file + "\n")
-
-#     return diff_files
-
 
 def download_image(string, response, current_worker_info):
     global total_downloaded
@@ -466,39 +429,6 @@ def update_worker_status(message, current_worker_info):
 
     current_workers[current_worker_info["WorkerID"]]["current_message"] = message
 
-    # for index, worker in enumerate(current_workers.items()):
-    #     if current_worker_info["WorkerID"] in worker:
-    #         workerIndex = index
-    # try:
-    #     current_workers[workerIndex]["current_message"] = message
-    # except Exception as e:
-    #     pass
-    #     # raise Exception
-
-    # global current_workers
-    # global ErrorLogs
-    # # current_workers[workerID][3] = message
-    # try:
-    #     current_workers[workerID]["current_message"] = message
-    #     cworker = current_workers[workerID]
-    #     message = cworker["current_message"]
-    #     current_message = cworker["current_message"]
-    # except IndexError as e:
-    #     if not "cworker" in locals():
-    #         cworker = "ERROR EMTPY"
-    #     if not "message" in locals():
-    #         message = "ERROR EMTPY"
-    #     write_error_string(f"Error writing Error: \nCurrent_workers: {current_workers}\nWorker: {cworker}\nCurrent Message: {current_message}\n New Message: {message}\nRaised Error:\n {e}")
-    # except Exception as e:
-    #     print(e)
-    #     print()
-
-
-# def check_links_get_respose(StringX):
-#     url = url_base + StringX + ".jpg"
-#     response = requests.get(url, allow_redirects=False)
-#     return response
-
 
 def check_links(current_worker_info, retries=0, response=None):
     global total_tested
@@ -507,8 +437,7 @@ def check_links(current_worker_info, retries=0, response=None):
 
     # Set string X from current_worker_info
     StringX = current_worker_info["StringX"]
-    # worker_status = current_worker_info["current_message"]
-    # workerID = current_worker_info["WorkerID"]
+
 
     if retries > 3:
         try:
@@ -662,35 +591,6 @@ def check_links_start(current_worker_info):
         check_links(current_worker_info)
 
 
-# def worker():
-#     global ErrorLogs
-#     global current_workers
-#     global threads_amount
-
-#     WorkerID = threading.current_thread().ident
-#     while True:
-
-#         # Get string for worker to use
-#         StringX = work_queue.get()
-
-#         # Create a dictionary to hold the current worker's information
-#         current_worker_info = {
-#             "workerID": WorkerID,
-#             "StringX": StringX,
-#             "current_message": "Birthed"
-#         }
-
-#         current_workers[WorkerID] = current_worker_info
-
-#         threads_amount += 1
-#         # check_links(current_worker_info)
-#         check_links(current_worker_info)
-#         threads_amount -= 1
-
-#         # del current_workers[get_worker_index(StringX)]
-#         del current_workers[current_worker_info["workerID"]]
-#         work_queue.task_done()
-
 
 def get_file_length(file):
     line_count = 0
@@ -712,18 +612,7 @@ def fetch_files_number_and_size():
 
             archive_files_amount = 0
 
-            # archive_file_limit = 1000000
-            # if archive_files_amount >= archive_file_limit:
-            #     archive_files_amount = f"Over {archive_file_limit}"
-            # else:
-            #     archive_files_amount = sum([len(files) for r, d, files in os.walk(download_folder)])
-
-            # redirectFileLength = get_file_length(RedirectURLs)
-            # CheckedURLFileLength = get_file_length(Checked_Strings_File)
             ErrorFileLength = get_file_length(ErrorFile)
-
-            # update_terminal()
-            # time.sleep(0.1)
 
         except Exception as e:
             write_error_string(message=f"Error updating stats: {e}")
@@ -756,16 +645,15 @@ def create_strings(current_worker_info):
                 message=f"I have made string {StringX}",
                 current_worker_info=current_worker_info,
             )
+
             total_iterations += 1
-            # if firstCheckForChecked:
             if is_string_used(StringX):
                 update_worker_status(
                     current_worker_info=current_worker_info,
                     message=f"The String {StringX} was used. Checking next combination.",
                 )
                 continue
-            # else:
-            #     firstCheckForChecked = False
+
 
             while True:
                 if work_queue.full():
@@ -871,7 +759,3 @@ create_new_worker(work="create_strings")
 create_new_worker(work="fetch_files_number_and_size")
 for i in range(max_threads - 3):  # -1 gets reserved for updating filesize etc
     create_new_worker(work="check_links")
-
-
-# Clean up the checkedURLs.txt for files that are missing in Archive
-# compare_files()
