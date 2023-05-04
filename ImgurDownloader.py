@@ -605,6 +605,7 @@ def check_links(current_worker_info, retries=0, response=None):
 
 def check_links_start(current_worker_info):
     while True:
+        current_worker_info["current_message"] = f"Now i will get a job from the Queue!"
         StringX = work_queue.get()
         current_worker_info["StringX"] = StringX
         # current_worker_info["current_message"] = f"Got job with string {StringX}"
@@ -687,19 +688,20 @@ def create_strings(current_worker_info):
         # firstCheckForChecked = True
         # stringsfurst = is_string_used(firstRun=True)
 
-        combination_queue = []
+        # combination_queue = []
 
         # Create 100 strings in a list, combination_queue
         # Check if those strings exists
         #   If not add them to work_queue
         #   If they exists, remove them from combination_queue
         # repeat until
-
+        update_worker_status(message="I wil now start generating combinations.", current_worker_info=current_worker_info)
         for combination in itertools.product(CharacterListA, repeat=string_length):
             StringX = "".join(combination)
-
+            update_worker_status(message=f"I have made string {StringX}", current_worker_info=current_worker_info)
             # if firstCheckForChecked:
             if is_string_used(StringX):
+                update_worker_status(current_worker_info=current_worker_info, message=f"The String {StringX} was used. Checking next combination.")
                 continue
             # else:
             #     firstCheckForChecked = False
@@ -768,6 +770,7 @@ def create_new_worker(work):
     current_workers[current_worker_info["WorkerID"]] = current_worker_info
 
     t.daemon = False
+    current_worker_info["current_message"] = f"Got all my settings!"
     t.start()
 
 
