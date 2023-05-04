@@ -165,6 +165,7 @@ archive_files_amount = 0
 total_iterations = 0
 archive_files_size = ""
 latest_string = ""
+latest_string_from_File = ""
 ErrorLogs = []
 
 current_workers = {}
@@ -699,17 +700,20 @@ def create_strings(current_worker_info):
         # firstCheckForChecked = True
         # stringsfurst = is_string_used(firstRun=True)
 
-        # combination_queue = []
-
-        # Create 100 strings in a list, combination_queue
-        # Check if those strings exists
-        #   If not add them to work_queue
-        #   If they exists, remove them from combination_queue
-        # repeat until
-        update_worker_status(message="I wil now start generating combinations.", current_worker_info=current_worker_info)
+        update_worker_status(message="I will now start generating combinations.", current_worker_info=current_worker_info)
+        Caught_up_to_previous_value = False
+        
         for combination in itertools.product(CharacterListA, repeat=string_length):
-            latest_string = combination
             StringX = "".join(combination)
+            latest_string = StringX
+            if not Caught_up_to_previous_value:
+                if StringX == latest_string_from_File:
+                    Caught_up_to_previous_value = True
+                if latest_string_from_File == "":
+                    pass
+                else:
+                    continue
+
             update_worker_status(message=f"I have made string {StringX}", current_worker_info=current_worker_info)
             total_iterations +=1
             # if firstCheckForChecked:
@@ -788,18 +792,21 @@ def create_new_worker(work):
 
 def write_last_info(mode=""):
     global total_iterations
-    global latest_string
+    global latest_string_from_File
 
     filePath = f"{download_folder_location}/{DB_files_path_prefix}/00LastStringX.txt"
     try: 
         if mode == "Restore":
-            import ast
-            
-            with open(filePath, "r+") as file:
-                # latest_string, total_iterations = tuple(file.read())
-                tuple_value = ast.literal_eval(file.read())
-                latest_string, total_iterations = tuple_value
+            import ast            
+            try:
+                with open(filePath, "r+") as file:
+                    # latest_string_from_File, total_iterations = tuple(file.read())
+                    tuple_value = ast.literal_eval(file.read())
+                    latest_string_from_File, total_iterations = tuple_value
+                    return
+            except SyntaxError:
                 return
+            
     except FileNotFoundError:
         return
     with open(filePath, "w+") as file:
