@@ -1,4 +1,4 @@
-import sys
+# import sys
 import itertools
 import requests
 import configparser
@@ -9,9 +9,6 @@ import imghdr
 import time
 import datetime
 import uuid
-
-
-
 
 
 if not os.path.isfile("settings.ini"):
@@ -47,8 +44,11 @@ if not os.path.isfile("settings.ini"):
 ; To just use Current Dir, enter only a punctationmark.
 ;download_folder_location    = . 
 
+; If this is just a word, a dir will be created in Current working directory,
+; If it is a path it will use the Path.
+;download_folder_name = Archive 
 
-;download_folder_name = Archive ; If this is just a work, a dir wil be craeted in Current working directory, if it is a path it will use the Path.
+
 ;DB_files_path_prefix = DB
 ;CheckedURLsFile      = 0checkedURLs.txt
 ;RedirectURLs         = 0RedirectURLs.txt
@@ -244,18 +244,18 @@ def update_terminal():
             totals += f"Current session URLs tested: {total_tested}\n"
             totals += f"Number of threads: {threads_amount}\n"
             totals += f"Download Folder: {download_folder}\n"
-            
-            totals += f"\n"
+
+            totals += "\n"
             totals += f"Total iterations: {total_iterations}\n"
             totals += f"Latest Iteration: {latest_string}\n"
-            
-            totals += f"\n"
+
+            totals += "\n"
             totals += f"Total number of files in archive folder: {str(archive_files_amount)}\n"
             totals += f"Total size of archive folder (in bytes): {archive_files_size}\n"
-            
-            totals += f"\n"
 
-            totals += f"\n"
+            totals += "\n"
+
+            totals += "\n"
             totals += f"Lines in Error registry:                 {ErrorFileLength}\n"
 
             # Print the full status message
@@ -265,7 +265,7 @@ def update_terminal():
 
             print(f"{header}\n{totals}\n{'Workers:'}\n\n{''.join(worker_rows)}\n")
             if len(footer) >= 1:
-                print(f"Last 3 Error messages:\n")
+                print("Last 3 Error messages:\n")
             for error in footer[-3:]:
                 print(str(error) + "\n")
 
@@ -283,7 +283,8 @@ def fetch_checked_file(StringX):
     file_prefix = StringX[
         :-2
     ]  # Use the first N-2 characters of the string as the prefix for the file name
-    file_path = f"{download_folder_location}/{DB_files_path_prefix}/{file_prefix}.txt"  # Construct the file path using the prefix
+    # Construct the file path using the prefix
+    file_path = f"{download_folder_location}/{DB_files_path_prefix}/{file_prefix}.txt"
     return file_path
 
 
@@ -292,7 +293,8 @@ def is_string_used_IO(StringX):
         :-2
     ]  # Use the first N-2 characters of the string as the prefix for the file name
     file_path = (
-        f"{download_folder}/{sub_folder}"  # Construct the file path using the prefix
+        # Construct the file path using the prefix
+        f"{download_folder}/{sub_folder}"
     )
 
     # temp = os.path.abspath(file_path)
@@ -366,39 +368,39 @@ def write_retry_strings(string):
 
 
 # Check files already downloaded still exists
-def compare_files():
-    archive_files = []
-    checked_files = []
+# def compare_files():
+#     archive_files = []
+#     checked_files = []
 
-    # Get list of files in Archive folder
-    for root, dirs, files in os.walk(download_folder):
-        for file in files:
-            archive_files.append(file.split(".")[0])
+#     # Get list of files in Archive folder
+#     for root, dirs, files in os.walk(download_folder):
+#         for file in files:
+#             archive_files.append(file.split(".")[0])
 
-    # Get list of files in checkedURLs.txt
-    with open(CheckedURLsFile, "r") as f:
-        for line in f:
-            checked_files.append(line.strip())
+#     # Get list of files in checkedURLs.txt
+#     with open(CheckedURLsFile, "r") as f:
+#         for line in f:
+#             checked_files.append(line.strip())
 
-    # Find files that exist in checkedURLs.txt but not in Archive folder
-    diff_files = set(checked_files) - set(archive_files)
+#     # Find files that exist in checkedURLs.txt but not in Archive folder
+#     diff_files = set(checked_files) - set(archive_files)
 
-    # Remove entries that are missing in the archive list from the checked_files list
-    for file in diff_files:
-        checked_files.remove(file)
+#     # Remove entries that are missing in the archive list from the checked_files list
+#     for file in diff_files:
+#         checked_files.remove(file)
 
-    # Remove entries that are missing in the archive list from the "checkedURLs.txt" file
-    with open(CheckedURLsFile, "w") as f:
-        for file in checked_files:
-            f.write(file + "\n")
+#     # Remove entries that are missing in the archive list from the "checkedURLs.txt" file
+#     with open(CheckedURLsFile, "w") as f:
+#         for file in checked_files:
+#             f.write(file + "\n")
 
-    return diff_files
+#     return diff_files
 
 
 def download_image(string, response, current_worker_info):
     global total_downloaded
 
-    update_worker_status(f"Getting file extension", current_worker_info)
+    update_worker_status("Getting file extension", current_worker_info)
     file_extension = get_file_extension(response)
     file_name = string + file_extension
     update_worker_status(
@@ -406,13 +408,13 @@ def download_image(string, response, current_worker_info):
     )
     dir_name = os.path.join(download_folder, file_name[:3])
 
-    update_worker_status(f"Configurating Filepath", current_worker_info)
+    update_worker_status("Configurating Filepath", current_worker_info)
     if not os.path.exists(dir_name):
         os.makedirs(dir_name, exist_ok=True)
 
     file_path = os.path.join(dir_name, file_name)
 
-    update_worker_status(f"Writing image to file", current_worker_info)
+    update_worker_status("Writing image to file", current_worker_info)
     with open(file_path, "wb") as f:
         f.write(response.content)
         # print(f"Downloaded image {file_name}")
@@ -474,7 +476,8 @@ def check_links(current_worker_info, retries=0, response=None):
     global current_workers
     global ErrorLogs
 
-    StringX = current_worker_info["StringX"]  # Set string X from current_worker_info
+    # Set string X from current_worker_info
+    StringX = current_worker_info["StringX"]
     # worker_status = current_worker_info["current_message"]
     # workerID = current_worker_info["WorkerID"]
 
@@ -537,7 +540,7 @@ def check_links(current_worker_info, retries=0, response=None):
 
     except HTTPSConnectionPool as e:
         update_worker_status(
-            f"Got timeout. Adding to Retry list for later.", current_worker_info
+            "Got timeout. Adding to Retry list for later.", current_worker_info
         )
         write_error_string(
             message=f"Error with String {StringX}. Got Timeout Error. Adding to ErrorString and Retry List. Error: {e}",
@@ -547,7 +550,7 @@ def check_links(current_worker_info, retries=0, response=None):
         pass
     except Exception as e:
         update_worker_status(
-            f"Got Error. Writing down error, and continue.", current_worker_info
+            "Got Error. Writing down error, and continue.", current_worker_info
         )
         write_error_string(
             message=f"Error with String {StringX}. Could not get response. Error: \n{e}",
@@ -622,7 +625,7 @@ def check_links(current_worker_info, retries=0, response=None):
 
 def check_links_start(current_worker_info):
     while True:
-        current_worker_info["current_message"] = f"Now i wait for a job from the Queue!"
+        current_worker_info["current_message"] = "Now i wait for a job from the Queue!"
         StringX = work_queue.get()
         current_worker_info["StringX"] = StringX
         # current_worker_info["current_message"] = f"Got job with string {StringX}"
@@ -704,10 +707,12 @@ def create_strings(current_worker_info):
     global total_iterations
     global latest_string
     try:
-
-        update_worker_status(message="I will now start generating combinations.", current_worker_info=current_worker_info)
+        update_worker_status(
+            message="I will now start generating combinations.",
+            current_worker_info=current_worker_info,
+        )
         Caught_up_to_previous_value = False
-        
+
         for combination in itertools.product(CharacterListA, repeat=string_length):
             StringX = "".join(combination)
             latest_string = StringX
@@ -719,11 +724,17 @@ def create_strings(current_worker_info):
                 else:
                     continue
 
-            update_worker_status(message=f"I have made string {StringX}", current_worker_info=current_worker_info)
-            total_iterations +=1
+            update_worker_status(
+                message=f"I have made string {StringX}",
+                current_worker_info=current_worker_info,
+            )
+            total_iterations += 1
             # if firstCheckForChecked:
             if is_string_used(StringX):
-                update_worker_status(current_worker_info=current_worker_info, message=f"The String {StringX} was used. Checking next combination.")
+                update_worker_status(
+                    current_worker_info=current_worker_info,
+                    message=f"The String {StringX} was used. Checking next combination.",
+                )
                 continue
             # else:
             #     firstCheckForChecked = False
@@ -763,25 +774,25 @@ def create_new_worker(work):
     # Give worker a job:
     if work == "check_links":
         # current_workers[WorkerID]["current_message"] = f"Got job checking strings!"
-        current_worker_info["current_message"] = f"Got job checking strings!"
+        current_worker_info["current_message"] = "Got job checking strings!"
         # Create worker thread:
         t = threading.Thread(target=check_links_start, args=(current_worker_info,))
 
     elif work == "create_strings":
         # current_workers[WorkerID]["current_message"] = f"Got job creating links."
-        current_worker_info["current_message"] = f"Got job creating links."
+        current_worker_info["current_message"] = "Got job creating links."
         # Create worker thread:
         t = threading.Thread(target=create_strings, args=(current_worker_info,))
 
     elif work == "update_terminal":
         # current_workers[WorkerID]["current_message"] = f"Got job updating Terminal."
-        current_worker_info["current_message"] = f"Got job updating Terminal."
+        current_worker_info["current_message"] = "Got job updating Terminal."
         # Create worker thread:
         t = threading.Thread(target=update_terminal)
 
     elif work == "fetch_files_number_and_size":
         # current_workers[WorkerID]["current_message"] = f"Got job updating Terminal."
-        current_worker_info["current_message"] = f"Got job updating Terminal."
+        current_worker_info["current_message"] = "Got job updating Terminal."
         # Create worker thread:
         t = threading.Thread(target=fetch_files_number_and_size)
     else:
@@ -792,17 +803,19 @@ def create_new_worker(work):
     current_workers[current_worker_info["WorkerID"]] = current_worker_info
 
     t.daemon = False
-    current_worker_info["current_message"] = f"Got all my settings!"
+    current_worker_info["current_message"] = "Got all my settings!"
     t.start()
+
 
 def write_last_info(mode=""):
     global total_iterations
     global latest_string_from_File
 
     filePath = f"{download_folder_location}/{DB_files_path_prefix}/00LastStringX.txt"
-    try: 
+    try:
         if mode == "Restore":
-            import ast            
+            import ast
+
             try:
                 with open(filePath, "r+") as file:
                     # latest_string_from_File, total_iterations = tuple(file.read())
@@ -811,13 +824,12 @@ def write_last_info(mode=""):
                     return
             except SyntaxError:
                 return
-            
+
     except FileNotFoundError:
         return
     with open(filePath, "w+") as file:
         tuple = (latest_string, total_iterations)
         file.write(str(tuple))
-
 
 
 os.system("clear")
@@ -831,8 +843,6 @@ create_new_worker(work="create_strings")
 create_new_worker(work="fetch_files_number_and_size")
 for i in range(max_threads - 3):  # -1 gets reserved for updating filesize etc
     create_new_worker(work="check_links")
-
-
 
 
 # Clean up the checkedURLs.txt for files that are missing in Archive
