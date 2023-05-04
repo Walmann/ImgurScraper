@@ -168,6 +168,7 @@ latest_string = ""
 latest_string_from_File = ""
 ErrorLogs = []
 
+
 current_workers = {}
 
 
@@ -211,6 +212,7 @@ def update_terminal():
     global redirectFileLength
     global CheckedURLFileLength
     global ErrorFileLength
+    global latest_string
     while True:
         try:
             # os.system("clr")
@@ -242,13 +244,18 @@ def update_terminal():
             totals += f"Current session URLs tested: {total_tested}\n"
             totals += f"Number of threads: {threads_amount}\n"
             totals += f"Download Folder: {download_folder}\n"
-            # totals += f"Total URLs tested: {total_tested}\n" # ADD ITTERATIONS
+            
+            totals += f"\n"
+            totals += f"Total iterations: {total_iterations}\n"
+            totals += f"Latest Iteration: {latest_string}\n"
+            
             totals += f"\n"
             totals += f"Total number of files in archive folder: {str(archive_files_amount)}\n"
             totals += f"Total size of archive folder (in bytes): {archive_files_size}\n"
-            totals += f"Total iterations: {total_iterations}\n"
-            # totals += f"Lines in Redirected registry:            {redirectFileLength}\n"
-            # totals += f"Lines in Checked registry:               {CheckedURLFileLength}\n"
+            
+            totals += f"\n"
+
+            totals += f"\n"
             totals += f"Lines in Error registry:                 {ErrorFileLength}\n"
 
             # Print the full status message
