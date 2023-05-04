@@ -9,9 +9,11 @@ import time
 import datetime
 import uuid
 
+
 if not os.path.isfile("settings.ini"):
     with open("settings.ini", "w") as file:
-        file.write("""
+        file.write(
+            """
 [DEFAULT]
 
 ;Check for missmatch between the Database and the actual files inside of the Archive. 
@@ -49,47 +51,82 @@ if not os.path.isfile("settings.ini"):
 ;ErrorFile            = 0ErrorStings.txt
 ;RetryStringsFile     = 0RetryStrings.txt
 
-""")
-        print("Settings.ini is now created. Rerun the script after editing the settings.")
+"""
+        )
+        print(
+            "Settings.ini is now created. Rerun the script after editing the settings."
+        )
 
 
 # SETTINGS
 # To change these settings, write them as an entry in settings.ini.
 # Default settings:
 default_settings = {
-    'check_for_DB_missmatch': False,
-    'string_length': 5,
-    'max_threads_percent': 90,
-    'max_iterations': -1,
-    'download_folder_location': ".",
-    'download_folder_name': "Archive",
-    'DB_files_path_prefix': "DB",
-    'CheckedURLsFile': "0checkedURLs.txt",
-    'RedirectURLs': "0RedirectURLs.txt",
-    'ErrorFile': "0ErrorStings.txt",
-    'RetryStringsFile': "0RetryStrings.txt",
-    'max_queue_size': 500,
-    'max_combination_gen_size': 500,
+    "check_for_DB_missmatch": False,
+    "string_length": 5,
+    "max_threads_percent": 90,
+    "max_iterations": -1,
+    "download_folder_location": ".",
+    "download_folder_name": "Archive",
+    "DB_files_path_prefix": "DB",
+    "CheckedURLsFile": "0checkedURLs.txt",
+    "RedirectURLs": "0RedirectURLs.txt",
+    "ErrorFile": "0ErrorStings.txt",
+    "RetryStringsFile": "0RetryStrings.txt",
+    "max_queue_size": 500,
+    "max_combination_gen_size": 500,
 }
 
 config = configparser.ConfigParser()
-config.read('settings.ini')
-check_for_DB_missmatch = int(config.get('DEFAULT', 'check_for_DB_missmatch', fallback=default_settings['check_for_DB_missmatch']))
+config.read("settings.ini")
+check_for_DB_missmatch = int(
+    config.get(
+        "DEFAULT",
+        "check_for_DB_missmatch",
+        fallback=default_settings["check_for_DB_missmatch"],
+    )
+)
 
-string_length = int(config.get('DEFAULT', 'string_length', fallback=default_settings['string_length']))
-max_threads_percent = int(config.get('DEFAULT', 'max_threads_percent', fallback=default_settings['max_threads_percent']))
-max_iterations = int(config.get('DEFAULT', 'max_iterations', fallback=default_settings['max_iterations']))
+string_length = int(
+    config.get("DEFAULT", "string_length", fallback=default_settings["string_length"])
+)
+max_threads_percent = int(
+    config.get(
+        "DEFAULT",
+        "max_threads_percent",
+        fallback=default_settings["max_threads_percent"],
+    )
+)
+max_iterations = int(
+    config.get("DEFAULT", "max_iterations", fallback=default_settings["max_iterations"])
+)
 
-download_folder_name = config.get('DEFAULT', 'download_folder_name', fallback=default_settings['download_folder_name'])
-download_folder_location = config.get('DEFAULT', 'download_folder_location', fallback=default_settings['download_folder_location'])
-DB_files_path_prefix = config.get('DEFAULT', 'DB_files_path_prefix', fallback=default_settings['DB_files_path_prefix'])
+download_folder_name = config.get(
+    "DEFAULT", "download_folder_name", fallback=default_settings["download_folder_name"]
+)
+download_folder_location = config.get(
+    "DEFAULT",
+    "download_folder_location",
+    fallback=default_settings["download_folder_location"],
+)
+DB_files_path_prefix = config.get(
+    "DEFAULT", "DB_files_path_prefix", fallback=default_settings["DB_files_path_prefix"]
+)
 
 CheckedURLsFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'CheckedURLsFile', fallback=default_settings['CheckedURLsFile'])}"
 RedirectURLs = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'RedirectURLs', fallback=default_settings['RedirectURLs'])}"
 ErrorFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'ErrorFile', fallback=default_settings['ErrorFile'])}"
 RetryStringsFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'RetryStringsFile', fallback=default_settings['RetryStringsFile'])}"
-max_queue_size = int(config.get('DEFAULT', 'max_queue_size', fallback=default_settings['max_queue_size']))
-max_combination_gen_size = int(config.get('DEFAULT', 'max_combination_gen_size', fallback=default_settings['max_combination_gen_size']))
+max_queue_size = int(
+    config.get("DEFAULT", "max_queue_size", fallback=default_settings["max_queue_size"])
+)
+max_combination_gen_size = int(
+    config.get(
+        "DEFAULT",
+        "max_combination_gen_size",
+        fallback=default_settings["max_combination_gen_size"],
+    )
+)
 download_folder = f"{download_folder_location}/{download_folder_name}"
 
 
@@ -104,7 +141,7 @@ url_base = "https://i.imgur.com/"
 # ErrorFile = f"{DB_files_path}/0ErrorStings.txt"
 # RetryStringsFile = f"{DB_files_path}/0RetryStrings.txt"
 # File locations:
-file_name = ''
+file_name = ""
 # Checked_Strings_File = "checkedURLs.txt"
 
 redirectFileLength = 0
@@ -147,8 +184,8 @@ def compare_files():
     return diff_files
 
 
-def sizeof_fmt(num, suffix='B'):
-    for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
+def sizeof_fmt(num, suffix="B"):
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
         if abs(num) < 1024.0:
             return f"{num:.1f} {unit}{suffix}"
         num /= 1024.0
@@ -168,7 +205,6 @@ def update_terminal():
     global ErrorFileLength
     while True:
         try:
-
             # os.system("clr")
 
             # TODO Make it prettier....
@@ -187,7 +223,9 @@ def update_terminal():
                 for item in worker.keys():
                     workerStats = workerStats + f"  {item}: {worker[item]}\n"
 
-                workerBlock = f"Worker: {worker['WorkerID'][:8].upper()}\n" + workerStats + "\n"
+                workerBlock = (
+                    f"Worker: {worker['WorkerID'][:8].upper()}\n" + workerStats + "\n"
+                )
 
                 worker_rows.append(workerBlock)
 
@@ -225,10 +263,12 @@ def update_terminal():
 
 
 def fetch_checked_file(StringX):
-    file_prefix = StringX[:-2]  # Use the first N-2 characters of the string as the prefix for the file name
+    file_prefix = StringX[
+        :-2
+    ]  # Use the first N-2 characters of the string as the prefix for the file name
     file_path = f"{download_folder_location}/{DB_files_path_prefix}/{file_prefix}.txt"  # Construct the file path using the prefix
     return file_path
-    
+
 
 def is_string_used_IO(StringX):
     sub_folder = StringX[
@@ -270,22 +310,22 @@ def is_string_used(string="", firstRun=False):
 
 def is_url_redirect(string):
     if not os.path.exists(RedirectURLs):
-        open(RedirectURLs, 'w').close()
+        open(RedirectURLs, "w").close()
 
-    with open(RedirectURLs, 'r') as f:
+    with open(RedirectURLs, "r") as f:
         # temp = string in f.read()
         return string in f.read()
 
 
 def write_string(string):
-    with open(fetch_checked_file(string), 'a+') as f:
-        f.write(string + '\n')
+    with open(fetch_checked_file(string), "a+") as f:
+        f.write(string + "\n")
     # with open(Checked_Strings_File, 'a') as f:
     #     f.write(string + '\n')
 
 
-def write_error_string(error="", message="", StringX = ""):
-    with open(ErrorFile, 'a+') as f:
+def write_error_string(error="", message="", StringX=""):
+    with open(ErrorFile, "a+") as f:
         now = datetime.datetime.now()
         current_time = now.strftime("%H:%M:%S")
 
@@ -293,9 +333,10 @@ def write_error_string(error="", message="", StringX = ""):
     if not StringX == "":
         write_string(StringX)
 
+
 def write_redirect_url(string):
-    with open("RedirectURLs.txt", 'a+') as f:
-        f.write(string + '\n')
+    with open("RedirectURLs.txt", "a+") as f:
+        f.write(string + "\n")
     write_string(string)
 
 
@@ -303,7 +344,7 @@ def write_retry_strings(string):
     with open("RetryStrings.txt", "a+") as f:
         if string.endsWith("\n"):
             f.write(string)
-        f.write(string+"\n")
+        f.write(string + "\n")
     write_string(string)
 
 
@@ -343,7 +384,9 @@ def download_image(string, response, current_worker_info):
     update_worker_status(f"Getting file extension", current_worker_info)
     file_extension = get_file_extension(response)
     file_name = string + file_extension
-    update_worker_status(f"Got file extension and filename {file_name}", current_worker_info)
+    update_worker_status(
+        f"Got file extension and filename {file_name}", current_worker_info
+    )
     dir_name = os.path.join(download_folder, file_name[:3])
 
     update_worker_status(f"Configurating Filepath", current_worker_info)
@@ -408,61 +451,98 @@ def update_worker_status(message, current_worker_info):
 #     response = requests.get(url, allow_redirects=False)
 #     return response
 
+
 def check_links(current_worker_info, retries=0, response=None):
     global total_tested
     global current_workers
     global ErrorLogs
 
     StringX = current_worker_info["StringX"]  # Set string X from current_worker_info
-    worker_status = current_worker_info["current_message"]
-    workerID = current_worker_info["WorkerID"]
+    # worker_status = current_worker_info["current_message"]
+    # workerID = current_worker_info["WorkerID"]
 
     if retries > 3:
         try:
-            update_worker_status("String failed. Writing down string and closing down.", current_worker_info)
-            write_error_string(message=f"Error after trying 3 times. String {StringX}, Response code: {response.status_code}", StringX = StringX)
+            update_worker_status(
+                "String failed. Writing down string and closing down.",
+                current_worker_info,
+            )
+            write_error_string(
+                message=f"Error after trying 3 times. String {StringX}, Response code: {response.status_code}",
+                StringX=StringX,
+            )
             # write_string(StringX)
             return
         except AttributeError as e:
-            update_worker_status("String failed. Writing down string and closing down.", current_worker_info)
-            write_error_string(message= f"Error after trying 3 times. String {StringX}, Response code: NOT AVAILABLE MOST LIKLEY FAILED RESPONSE", error=e, StringX = StringX)
+            update_worker_status(
+                "String failed. Writing down string and closing down.",
+                current_worker_info,
+            )
+            write_error_string(
+                message=f"Error after trying 3 times. String {StringX}, Response code: NOT AVAILABLE MOST LIKLEY FAILED RESPONSE",
+                error=e,
+                StringX=StringX,
+            )
             # write_string(StringX)
             return
 
     update_worker_status("Checking if string is already used", current_worker_info)
     if is_string_used(StringX):
-        update_worker_status("String is already used. Closing this worker.", current_worker_info)
+        update_worker_status(
+            "String is already used. Closing this worker.", current_worker_info
+        )
         total_tested += 1
         return
 
     try:
         response_status = 0
-        update_worker_status(f"Connecting to URL, retries: {retries}", current_worker_info)
+        update_worker_status(
+            f"Connecting to URL, retries: {retries}", current_worker_info
+        )
         url = url_base + StringX + ".jpg"
         response = requests.get(url, allow_redirects=False, timeout=15)
         response_status = response.status_code
-        update_worker_status(f"Finished connecting to URL, retries: {retries}", current_worker_info)
+        update_worker_status(
+            f"Finished connecting to URL, retries: {retries}", current_worker_info
+        )
 
     except requests.exceptions.SSLError as e:
-        update_worker_status(f"Got SSLError. String: {StringX}, . Retries left: {retries}", current_worker_info)
+        update_worker_status(
+            f"Got SSLError. String: {StringX}, . Retries left: {retries}",
+            current_worker_info,
+        )
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
         retries += 1
-        check_links(current_worker_info=current_worker_info, retries=retries, response=response)
+        check_links(
+            current_worker_info=current_worker_info, retries=retries, response=response
+        )
 
     except HTTPSConnectionPool as e:
-        update_worker_status(f"Got timeout. Adding to Retry list for later.", current_worker_info)
-        write_error_string(message=f"Error with String {StringX}. Got Timeout Error. Adding to ErrorString and Retry List. Error: {e}", StringX=StringX)
+        update_worker_status(
+            f"Got timeout. Adding to Retry list for later.", current_worker_info
+        )
+        write_error_string(
+            message=f"Error with String {StringX}. Got Timeout Error. Adding to ErrorString and Retry List. Error: {e}",
+            StringX=StringX,
+        )
         write_retry_strings(StringX)
         pass
     except Exception as e:
-        update_worker_status(f"Got Error. Writing down error, and continue.", current_worker_info)
-        write_error_string(message=f"Error with String {StringX}. Could not get response. Error: \n{e}", StringX=StringX)
+        update_worker_status(
+            f"Got Error. Writing down error, and continue.", current_worker_info
+        )
+        write_error_string(
+            message=f"Error with String {StringX}. Could not get response. Error: \n{e}",
+            StringX=StringX,
+        )
         write_retry_strings(StringX)
         pass
 
     if response_status == 200:
-        update_worker_status("Got Status code 200. Downloading image. ", current_worker_info)
+        update_worker_status(
+            "Got Status code 200. Downloading image. ", current_worker_info
+        )
         download_image(StringX, response, current_worker_info)
         return
 
@@ -473,38 +553,57 @@ def check_links(current_worker_info, retries=0, response=None):
         return
 
     if response_status == 429:
-        update_worker_status(f"Got Status code {response_status}, blocked by host. Retrying", current_worker_info)
+        update_worker_status(
+            f"Got Status code {response_status}, blocked by host. Retrying",
+            current_worker_info,
+        )
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
         retries += 1
-        check_links(current_worker_info=current_worker_info, retires=retries, response=response)
+        check_links(
+            current_worker_info=current_worker_info, retires=retries, response=response
+        )
 
     if response_status == 104:
-        update_worker_status(f"Got Status code {response_status}, Connection Reset From Host. Retries left: {retries}", current_worker_info)
+        update_worker_status(
+            f"Got Status code {response_status}, Connection Reset From Host. Retries left: {retries}",
+            current_worker_info,
+        )
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
         retries += 1
-        check_links(current_worker_info=current_worker_info, retires=retries, response=response)
+        check_links(
+            current_worker_info=current_worker_info, retires=retries, response=response
+        )
 
     if response_status == 500:
-        update_worker_status(f"Got Status code {response_status}, Connection Reset From Host. Retries left: {retries}", current_worker_info)
+        update_worker_status(
+            f"Got Status code {response_status}, Connection Reset From Host. Retries left: {retries}",
+            current_worker_info,
+        )
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
         retries += 1
-        check_links(current_worker_info=current_worker_info, retries=retries, response=response)
+        check_links(
+            current_worker_info=current_worker_info, retries=retries, response=response
+        )
 
-    update_worker_status(f"Got unknow status code: {response_status}. Writing down error, put String into file of strings to try later, then continue.", current_worker_info)
+    update_worker_status(
+        f"Got unknow status code: {response_status}. Writing down error, put String into file of strings to try later, then continue.",
+        current_worker_info,
+    )
     # write_error_string(f"Error with String {StringX}. Got unknown Status code: {response_status}")
     # write_retry_strings(StringX)
 
     time.sleep(5)
     retries += 1
-    check_links(current_worker_info=current_worker_info, retries=retries, response=response)
+    check_links(
+        current_worker_info=current_worker_info, retries=retries, response=response
+    )
     return
 
 
 def check_links_start(current_worker_info):
-
     while True:
         StringX = work_queue.get()
         current_worker_info["StringX"] = StringX
@@ -585,19 +684,25 @@ def fetch_files_number_and_size():
 def create_strings(current_worker_info):
     global max_iterations
     try:
-        firstCheckForChecked = True
-        stringsfurst = is_string_used(firstRun=True)
+        # firstCheckForChecked = True
+        # stringsfurst = is_string_used(firstRun=True)
 
         combination_queue = []
 
-        for combination in itertools.product(CharacterListA, repeat=string_length):
-            StringX = ''.join(combination)
+        # Create 100 strings in a list, combination_queue
+        # Check if those strings exists
+        #   If not add them to work_queue
+        #   If they exists, remove them from combination_queue
+        # repeat until
 
-            if firstCheckForChecked:
-                if is_string_used(StringX):
-                    continue
-                else:
-                    firstCheckForChecked = False
+        for combination in itertools.product(CharacterListA, repeat=string_length):
+            StringX = "".join(combination)
+
+            # if firstCheckForChecked:
+            if is_string_used(StringX):
+                continue
+            # else:
+            #     firstCheckForChecked = False
 
             while True:
                 if work_queue.full():
@@ -659,34 +764,11 @@ def create_new_worker(work):
         print("Worker got no job.")
         raise Exception("Worker got no job!")
 
-
     # Add worker to list:
     current_workers[current_worker_info["WorkerID"]] = current_worker_info
 
     t.daemon = False
     t.start()
-    # # Get string for worker to use
-    # StringX = work_queue.get()
-
-    # # Create a dictionary to hold the current worker's information
-    # current_worker_info = {
-    #     "workerID": WorkerID,
-    #     "StringX": StringX,
-    #     "current_message": "Birthed"
-    # }
-
-    # Create a dictionary to hold the current worker's information
-
-    # current_workers[WorkerID] = current_worker_info
-
-    # threads_amount += 1
-    # # check_links(current_worker_info)
-    # check_links(current_worker_info)
-    # threads_amount -= 1
-
-    # # del current_workers[get_worker_index(StringX)]
-    # del current_workers[current_worker_info["workerID"]]
-    # work_queue.task_done()
 
 
 os.system("clear")
@@ -696,32 +778,6 @@ create_new_worker(work="create_strings")
 create_new_worker(work="fetch_files_number_and_size")
 for i in range(max_threads - 3):  # -1 gets reserved for updating filesize etc
     create_new_worker(work="check_links")
-
-# for i in range(max_threads - 3):  # -1 gets reserved for updating filesize etc
-#     create_new_worker(work="check_links")
-
-
-# Start the Loop.
-# t1 = threading.Thread(target=create_strings)
-# t1.daemon = False
-# t1.start()
-
-# # Create thread for Updating terminal
-# t2 = threading.Thread(target=update_terminal)
-# t2.daemon = False
-# t2.start()
-
-# # Create thread for filesize fetching
-# t3 = threading.Thread(target=fetch_files_number_and_size)
-# t3.daemon = False
-# t3.start()
-
-# # Start worker threads
-# for i in range(max_threads - 3):  # -1 gets reserved for updating filesize etc
-#     # for i in range(2 -1 ): # DEGUB LINE
-#     t = threading.Thread(target=worker)
-#     t.daemon = False
-#     t.start()
 
 
 # Clean up the checkedURLs.txt for files that are missing in Archive
