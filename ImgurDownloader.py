@@ -172,7 +172,7 @@ def update_terminal():
             # terminal_size_width = shutil.get_terminal_size().columns
 
             # Create the header
-            header = "\n\n\n\n\n IMGUR DOWNLOADER"
+            header = "\n\n\n\n\nIMGUR DOWNLOADER\n"
             header += f"Last refresh: {datetime.datetime.now().strftime('%H:%M:%S')}"
 
             worker_rows = []
