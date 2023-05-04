@@ -270,7 +270,7 @@ def update_terminal():
 
             if StartedWork:
                 time.sleep(0.5)
-            else
+            else:
                 time.sleep(10)
 
 
