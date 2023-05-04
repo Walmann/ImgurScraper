@@ -230,13 +230,38 @@ def fetch_checked_file(StringX):
     return file_path
     
 
-def is_string_used(string = "", firstRun=False):
+def is_string_used_IO(StringX):
+    sub_folder = StringX[
+        :-2
+    ]  # Use the first N-2 characters of the string as the prefix for the file name
+    file_path = (
+        f"{download_folder}/{sub_folder}"  # Construct the file path using the prefix
+    )
+
+    # temp = os.path.abspath(file_path)
+    # temp2 = os.listdir(os.path.abspath(file_path))
+    try:
+        # for filename in temp2:
+        for filename in os.listdir(os.path.abspath(file_path)):
+            if StringX in filename.split(".")[0]:
+                return True
+
+        return False
+    except FileNotFoundError:
+        return False
+
+
+def is_string_used(string="", firstRun=False):
     # if not os.path.exists(Checked_Strings_File):
     #     open(Checked_Strings_File, 'w').close()
 
     try:
-        with open(fetch_checked_file(string), 'r') as f:
-            return string in f.read()
+        if is_string_used_IO(string):
+            return True
+        with open(fetch_checked_file(string), "r") as f:
+            if string in f.read():
+                return True
+            # return string in f.read()
     except FileNotFoundError:
         with open(fetch_checked_file(string), "w+") as f:
             f.write("")
