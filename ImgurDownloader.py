@@ -570,7 +570,7 @@ def create_strings(current_worker_info):
                     time.sleep(1)
                 else:
                     work_queue.put(StringX)
-                    string_set.add(StringX)
+                    # string_set.add(StringX)
                     max_iterations -= 1
                     # check_links(StringX=StringX)
                     break
