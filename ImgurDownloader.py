@@ -3,11 +3,9 @@ import requests
 import configparser
 import os
 import threading
-import sys
 import queue
 import imghdr
 import time
-import shutil
 import datetime
 import uuid
 
@@ -33,6 +31,9 @@ if not os.path.isfile("settings.ini"):
 ; Max Queue size:
 ; max_queue_size = 500
 
+; Max Generation queue size:
+; max_combination_gen_size = 500
+
 ; File locations:
 
 ; Download folder location. 
@@ -41,7 +42,7 @@ if not os.path.isfile("settings.ini"):
 ;download_folder_location    = . 
 
 
-;download_folder_name        = Archive ; If this is just a work, a dir wil be craeted in Current working directory, if it is a path it will use the Path.
+;download_folder_name = Archive ; If this is just a work, a dir wil be craeted in Current working directory, if it is a path it will use the Path.
 ;DB_files_path_prefix = DB
 ;CheckedURLsFile      = 0checkedURLs.txt
 ;RedirectURLs         = 0RedirectURLs.txt
@@ -68,6 +69,7 @@ default_settings = {
     'ErrorFile': "0ErrorStings.txt",
     'RetryStringsFile': "0RetryStrings.txt",
     'max_queue_size': 500,
+    'max_combination_gen_size': 500,
 }
 
 config = configparser.ConfigParser()
@@ -87,6 +89,7 @@ RedirectURLs = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('
 ErrorFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'ErrorFile', fallback=default_settings['ErrorFile'])}"
 RetryStringsFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'RetryStringsFile', fallback=default_settings['RetryStringsFile'])}"
 max_queue_size = int(config.get('DEFAULT', 'max_queue_size', fallback=default_settings['max_queue_size']))
+max_combination_gen_size = int(config.get('DEFAULT', 'max_combination_gen_size', fallback=default_settings['max_combination_gen_size']))
 download_folder = f"{download_folder_location}/{download_folder_name}"
 
 
@@ -192,6 +195,7 @@ def update_terminal():
             totals = f"Current session downloads: {total_downloaded}\n"
             totals += f"Current session URLs tested: {total_tested}\n"
             totals += f"Number of threads: {threads_amount}\n"
+            totals += f"Download Folder: {download_folder}\n"
             # totals += f"Total URLs tested: {total_tested}\n" # ADD ITTERATIONS
             totals += f"\n"
             totals += f"Total number of files in archive folder: {str(archive_files_amount)}\n"
@@ -224,7 +228,7 @@ def fetch_checked_file(StringX):
     file_prefix = StringX[:-2]  # Use the first N-2 characters of the string as the prefix for the file name
     file_path = f"{download_folder_location}/{DB_files_path_prefix}/{file_prefix}.txt"  # Construct the file path using the prefix
     return file_path
-
+    
 
 def is_string_used(string = "", firstRun=False):
     # if not os.path.exists(Checked_Strings_File):
@@ -257,7 +261,10 @@ def write_string(string):
 
 def write_error_string(error="", message="", StringX = ""):
     with open(ErrorFile, 'a+') as f:
-        f.write(f"{time.now()}: {message}. Error: {str(error)}\n")
+        now = datetime.datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+
+        f.write(f"{current_time}: {message}. Error: {str(error)}\n")
     if not StringX == "":
         write_string(StringX)
 
@@ -389,12 +396,12 @@ def check_links(current_worker_info, retries=0, response=None):
         try:
             update_worker_status("String failed. Writing down string and closing down.", current_worker_info)
             write_error_string(message=f"Error after trying 3 times. String {StringX}, Response code: {response.status_code}", StringX = StringX)
-            write_string(StringX)
+            # write_string(StringX)
             return
         except AttributeError as e:
             update_worker_status("String failed. Writing down string and closing down.", current_worker_info)
             write_error_string(message= f"Error after trying 3 times. String {StringX}, Response code: NOT AVAILABLE MOST LIKLEY FAILED RESPONSE", error=e, StringX = StringX)
-            write_string(StringX)
+            # write_string(StringX)
             return
 
     update_worker_status("Checking if string is already used", current_worker_info)
@@ -554,13 +561,15 @@ def create_strings(current_worker_info):
     global max_iterations
     try:
         firstCheckForChecked = True
-        stringsfurst = is_string_used("aaa", firstRun=True)
+        stringsfurst = is_string_used(firstRun=True)
+
+        combination_queue = []
 
         for combination in itertools.product(CharacterListA, repeat=string_length):
             StringX = ''.join(combination)
 
             if firstCheckForChecked:
-                if StringX in stringsfurst:
+                if is_string_used(StringX):
                     continue
                 else:
                     firstCheckForChecked = False
