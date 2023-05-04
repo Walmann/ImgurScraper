@@ -197,6 +197,7 @@ def update_terminal():
     global current_workers
     global total_downloaded
     global total_tested
+    global total_iterations
     global threads_amount
     global ErrorLogs
     global archive_files_amount
@@ -239,6 +240,7 @@ def update_terminal():
             totals += f"\n"
             totals += f"Total number of files in archive folder: {str(archive_files_amount)}\n"
             totals += f"Total size of archive folder (in bytes): {archive_files_size}\n"
+            totals += f"Total iterations: {total_iterations}\n"
             # totals += f"Lines in Redirected registry:            {redirectFileLength}\n"
             # totals += f"Lines in Checked registry:               {CheckedURLFileLength}\n"
             totals += f"Lines in Error registry:                 {ErrorFileLength}\n"
