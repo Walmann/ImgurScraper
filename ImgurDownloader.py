@@ -1,15 +1,15 @@
 # import sys
-import itertools
-import requests
 import configparser
-import os
-import threading
-import queue
-import imghdr
-import time
 import datetime
+import imghdr
+import itertools
+import os
+import queue
+import threading
+import time
 import uuid
 
+import requests
 
 if not os.path.isfile("settings.ini"):
     with open("settings.ini", "w") as file:
@@ -117,8 +117,8 @@ DB_files_path_prefix = config.get(
     "DEFAULT", "DB_files_path_prefix", fallback=default_settings["DB_files_path_prefix"]
 )
 
-CheckedURLsFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'CheckedURLsFile', fallback=default_settings['CheckedURLsFile'])}"
-RedirectURLs = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'RedirectURLs', fallback=default_settings['RedirectURLs'])}"
+CheckedURLsFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'CheckedURLsFile', fallback=default_settings['CheckedURLsFile'])}"  # noqa: E501
+RedirectURLs = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'RedirectURLs', fallback=default_settings['RedirectURLs'])}"  # noqa: E501
 ErrorFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'ErrorFile', fallback=default_settings['ErrorFile'])}"
 RetryStringsFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'RetryStringsFile', fallback=default_settings['RetryStringsFile'])}"
 max_queue_size = int(
@@ -526,7 +526,7 @@ def check_links(current_worker_info, retries=0, response=None):
             f"Finished connecting to URL, retries: {retries}", current_worker_info
         )
 
-    except requests.exceptions.SSLError as e:
+    except requests.exceptions.SSLError:
         update_worker_status(
             f"Got SSLError. String: {StringX}, . Retries left: {retries}",
             current_worker_info,
@@ -697,7 +697,6 @@ def fetch_files_number_and_size():
             # time.sleep(0.1)
 
         except Exception as e:
-            temp = "tempp"
             write_error_string(message=f"Error updating stats: {e}")
             raise Exception(e)
 
