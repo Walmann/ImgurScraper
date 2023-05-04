@@ -289,7 +289,7 @@ def update_terminal():
 
 def get_last_file_name(directory):
     # Get a list of all files in the directory
-    file_list = os.listdir(directory)
+    file_list = os.listdir(directory, )
 
     # Sort the files by name
     sorted_files = sorted(file_list)
@@ -297,7 +297,7 @@ def get_last_file_name(directory):
     # Get the last file in the list
     last_folder_name = sorted_files[-1]
 
-    file_list = os.listdir(f"{directory}\{last_folder_name}")
+    file_list = os.listdir(f"{directory}/{last_folder_name}")
     
     # Sort the files by name
     sorted_files = sorted(file_list)
