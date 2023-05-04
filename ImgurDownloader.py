@@ -213,6 +213,7 @@ def update_terminal():
     global CheckedURLFileLength
     global ErrorFileLength
     global latest_string
+    pppIterations = 0
     while True:
         try:
             # os.system("clr")
@@ -248,6 +249,7 @@ def update_terminal():
             totals += "\n"
             totals += f"Total iterations: {total_iterations}\n"
             totals += f"Latest Iteration: {latest_string}\n"
+            totals += f"Iterations since last refresh: {total_iterations-pppIterations}\n"
 
             totals += "\n"
             totals += f"Total number of files in archive folder: {str(archive_files_amount)}\n"
@@ -270,7 +272,9 @@ def update_terminal():
                 print(str(error) + "\n")
 
             write_last_info()
+            pppIterations = total_iterations
             time.sleep(0.5)
+
 
         except Exception as e:
             # print(e)
