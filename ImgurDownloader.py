@@ -346,14 +346,16 @@ def get_file_extension(response):
 def update_worker_status(message, current_worker_info):
     global current_workers
 
-    for index, worker in enumerate(current_workers.items()):
-        if current_worker_info["WorkerID"] in worker:
-            workerIndex = index
-    try:
-        current_workers[workerIndex]["current_message"] = message
-    except Exception as e:
-        pass
-        # raise Exception
+    current_workers[current_worker_info["WorkerID"]]["current_message"] = message
+
+    # for index, worker in enumerate(current_workers.items()):
+    #     if current_worker_info["WorkerID"] in worker:
+    #         workerIndex = index
+    # try:
+    #     current_workers[workerIndex]["current_message"] = message
+    # except Exception as e:
+    #     pass
+    #     # raise Exception
 
     # global current_workers
     # global ErrorLogs
