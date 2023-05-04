@@ -226,16 +226,12 @@ def fetch_checked_file(StringX):
     return file_path
 
 
-def is_string_used(string, firstRun=False):
+def is_string_used(string = "", firstRun=False):
     # if not os.path.exists(Checked_Strings_File):
     #     open(Checked_Strings_File, 'w').close()
 
     try:
         with open(fetch_checked_file(string), 'r') as f:
-            # temp = string in f.read()
-            if firstRun:
-                temp = f.read()
-                return temp
             return string in f.read()
     except FileNotFoundError:
         with open(fetch_checked_file(string), "w+") as f:
@@ -259,10 +255,11 @@ def write_string(string):
     #     f.write(string + '\n')
 
 
-def write_error_string(error="", message=""):
+def write_error_string(error="", message="", StringX = ""):
     with open(ErrorFile, 'a+') as f:
-        f.write(message + '\n' + str(error)+'\n')
-
+        f.write(f"{time.now()}: {message}. Error: {str(error)}\n")
+    if not StringX == "":
+        write_string(StringX)
 
 def write_redirect_url(string):
     with open("RedirectURLs.txt", 'a+') as f:
@@ -391,12 +388,13 @@ def check_links(current_worker_info, retries=0, response=None):
     if retries > 3:
         try:
             update_worker_status("String failed. Writing down string and closing down.", current_worker_info)
-            write_error_string(f"Error after trying 3 times. String {StringX}, Response code: {response.status_code}")
+            write_error_string(message=f"Error after trying 3 times. String {StringX}, Response code: {response.status_code}", StringX = StringX)
             write_string(StringX)
             return
-        except AttributeError:
+        except AttributeError as e:
             update_worker_status("String failed. Writing down string and closing down.", current_worker_info)
-            write_error_string(f"Error after trying 3 times. String {StringX}, Response code: NOT AVAILABLE MOST LIKLEY FAILED RESPONSE")
+            write_error_string(message= f"Error after trying 3 times. String {StringX}, Response code: NOT AVAILABLE MOST LIKLEY FAILED RESPONSE", error=e, StringX = StringX)
+            write_string(StringX)
             return
 
     update_worker_status("Checking if string is already used", current_worker_info)
@@ -422,12 +420,12 @@ def check_links(current_worker_info, retries=0, response=None):
 
     except HTTPSConnectionPool as e:
         update_worker_status(f"Got timeout. Adding to Retry list for later.", current_worker_info)
-        write_error_string(f"Error with String {StringX}. Got Timeout Error. Adding to ErrorString and Retry List. Error: {e}")
+        write_error_string(message=f"Error with String {StringX}. Got Timeout Error. Adding to ErrorString and Retry List. Error: {e}", StringX=StringX)
         write_retry_strings(StringX)
         pass
     except Exception as e:
         update_worker_status(f"Got Error. Writing down error, and continue.", current_worker_info)
-        write_error_string(f"Error with String {StringX}. Could not get response. Error: \n{e}")
+        write_error_string(message=f"Error with String {StringX}. Could not get response. Error: \n{e}", StringX=StringX)
         write_retry_strings(StringX)
         pass
 
@@ -548,7 +546,7 @@ def fetch_files_number_and_size():
 
         except Exception as e:
             temp = "tempp"
-            write_error_string(f"Error updateing stats: {e}")
+            write_error_string(message=f"Error updateing stats: {e}")
             raise Exception(e)
 
 
@@ -584,7 +582,7 @@ def create_strings(current_worker_info):
         work_queue.join()
     except Exception as e:
         # print(e)
-        write_error_string(error=e)
+        write_error_string(error=e, StringX=StringX)
 
 
 def create_new_worker(work):
