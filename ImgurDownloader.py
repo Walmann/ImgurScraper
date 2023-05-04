@@ -158,6 +158,7 @@ threads_amount = 0
 total_downloaded = 0
 total_tested = 0
 archive_files_amount = 0
+total_iterations = 0
 archive_files_size = ""
 ErrorLogs = []
 
@@ -684,6 +685,7 @@ def fetch_files_number_and_size():
 
 def create_strings(current_worker_info):
     global max_iterations
+    global total_iterations
     try:
         # firstCheckForChecked = True
         # stringsfurst = is_string_used(firstRun=True)
@@ -699,6 +701,7 @@ def create_strings(current_worker_info):
         for combination in itertools.product(CharacterListA, repeat=string_length):
             StringX = "".join(combination)
             update_worker_status(message=f"I have made string {StringX}", current_worker_info=current_worker_info)
+            total_iterations +=1
             # if firstCheckForChecked:
             if is_string_used(StringX):
                 update_worker_status(current_worker_info=current_worker_info, message=f"The String {StringX} was used. Checking next combination.")
