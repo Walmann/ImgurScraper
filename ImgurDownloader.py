@@ -159,7 +159,7 @@ archive_files_size = ""
 latest_string = ""
 latest_string_from_File = ""
 ErrorLogs = []
-
+StartedWork = False
 
 current_workers = {}
 
@@ -190,8 +190,6 @@ def sizeof_fmt(num, suffix="B"):
             return f"{num:.1f} {unit}{suffix}"
         num /= 1024.0
     return f"{num:.1f} Yi{suffix}"
-
-
 def update_terminal():
     global current_workers
     global total_downloaded
@@ -251,11 +249,10 @@ def update_terminal():
             totals += "\n"
             totals += f"Total number of files in archive folder: {str(archive_files_amount)}\n"
             totals += f"Total size of archive folder (in bytes): {archive_files_size}\n"
-
-            totals += "\n"
-
-            totals += "\n"
             totals += f"Lines in Error registry:                 {ErrorFileLength}\n"
+
+
+
 
             # Print the full status message
             footer = []
@@ -270,7 +267,11 @@ def update_terminal():
 
             write_last_info()
             pppIterations = total_iterations
-            time.sleep(0.5)
+
+            if StartedWork:
+                time.sleep(0.5)
+            else
+                time.sleep(10)
 
 
         except Exception as e:
@@ -434,6 +435,9 @@ def check_links(current_worker_info, retries=0, response=None):
     global total_tested
     global current_workers
     global ErrorLogs
+
+    global StartedWork
+    StartedWork = True
 
     # Set string X from current_worker_info
     StringX = current_worker_info["StringX"]
