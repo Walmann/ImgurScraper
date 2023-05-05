@@ -535,8 +535,9 @@ def create_strings(current_worker_info):
             StringX = "".join(combination)
             latest_string = StringX
             if not Caught_up_to_previous_value:
-                print(f"Creating combination {StringX}     ", end="\r")
+                print(f"\rCreating combination {StringX}     ")
                 if StringX == latest_string_from_File:
+                    print("Found Starting point!")
                     Caught_up_to_previous_value = True
                 if latest_string_from_File == "":
                     pass
