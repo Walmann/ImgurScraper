@@ -93,13 +93,35 @@ def update_terminal():
             header += f"Last refresh: {datetime.datetime.now().strftime('%H:%M:%S')}"
 
             worker_rows = []
+            workerBlock = ""
 
-            # Create the worker section
+
             if not settings["worker_print_disable"]:
-                for worker in current_workers.values():
-                    workerStats = ""
-                    worker_rows.append(f"Workers: {f'{len(current_workers)}'}\n")
-                    if not settings["worker_print_mini"]:
+                if settings["worker_print_mini"]:
+                    for worker in current_workers.values():
+                        worker_rows.append(f"Workers: {f'{len(current_workers)}'}\n")
+                        workerBlock = (f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}")
+                        if 'StringX' in worker:
+                            workerBlock += f" -> {worker['StringX']}"
+                        workerBlock += "\n"
+                        worker_rows.append(workerBlock)
+
+                if settings["worker_print_summary"]:
+                    jobs_summary = {}
+                    
+                    for worker in current_workers.values():
+                        if worker["Current_Work"] in jobs_summary:
+                            jobs_summary[worker["Current_Work"]] +=1
+                        else:
+                            jobs_summary[worker["Current_Work"]] = 1
+                    for job in jobs_summary:
+                        worker_rows.append(f"{job}: {jobs_summary[job]}\n")
+
+                    
+                else: 
+                    for worker in current_workers.values():
+                        workerStats = ""
+                        worker_rows.append(f"Workers: {f'{len(current_workers)}'}\n")
                         keys_to_ignore = ("WorkerID")
                         
                         for item in worker.keys():
@@ -110,13 +132,8 @@ def update_terminal():
                         workerBlock = (
                             f"Worker: {worker['WorkerID'][:8].upper()}\n" + workerStats + "\n"
                         )
-
-                    else: 
-                        workerBlock = (f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}")
-                        if 'StringX' in worker:
-                            workerBlock += f" -> {worker['StringX']}"
-                        workerBlock += "\n"
-                    worker_rows.append(workerBlock)
+                        worker_rows.append(workerBlock)
+                    
 
 
             # Add the totals row and footer
