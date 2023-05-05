@@ -22,7 +22,7 @@ def create_new_worker(work):
     if work == "get_file_amount":
         t = threading.Thread(target=get_file_amount)
     
-    if work == "get_folder_amount":
+    elif work == "get_folder_amount":
         t = threading.Thread(target=get_folder_amount)
 
     elif work == "get_total_file_size":
@@ -46,7 +46,8 @@ def get_file_amount():
         total_files = 0
         for root, dirs, files in os.walk(settings["download_folder"]):
             total_files += len(files)
-        total_files_archive = total_files
+            if total_files > total_files_archive:
+                total_files_archive = total_files
 
 
 def get_folder_amount():
@@ -55,7 +56,8 @@ def get_folder_amount():
         total_folders = 0
         for root, dirs, files in os.walk(settings["download_folder"]):
             total_folders += len(dirs)
-        total_folders_archive = total_folders
+            if total_folders > total_folders_archive:
+                total_folders_archive = total_folders
             
 
     
