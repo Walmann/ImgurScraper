@@ -20,7 +20,7 @@ def create_settings_file(): # TODO Update the created settings file
 
 
 ;;;; Threads settings ;;;;
-; Percentage of CPU to use.
+; Number of threads to use.
 ;max_threads = 10
 
 
