@@ -63,6 +63,7 @@ def get_total_file_size(path, checked_files=None):
             if file_path not in checked_files:
                 checked_files.add(file_path)
                 total_size += os.path.getsize(file_path)
+    total_files_size_archive = total_size
     for dir in dirs:
         dir_path = os.path.join(root, dir)
         if dir_path not in checked_files:
