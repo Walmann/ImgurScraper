@@ -204,6 +204,7 @@ def update_terminal():
     global ErrorFileLength
     global latest_string
     global StartedWork
+    global work_queue
     pppIterations = 0
 
     estimated_latest_string = get_last_file_name(download_folder)
@@ -239,6 +240,7 @@ def update_terminal():
             totals = f"Current session downloads: {total_downloaded}\n"
             totals += f"Current session URLs tested: {total_tested}\n"
             totals += f"Number of threads: {threads_amount}\n"
+            totals += f"Queue length: {work_queue.maxsize}\n"
             totals += f"Download Folder: {download_folder}\n"
 
             totals += "\n"
