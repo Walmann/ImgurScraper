@@ -580,6 +580,7 @@ def create_new_worker(work):
     global current_workers
     global threads_amount
 
+
     # Create worker:
     current_worker_info = {
         "Current_Work": work,
@@ -587,6 +588,7 @@ def create_new_worker(work):
         "WorkerID": str(uuid.uuid4()),
     }
 
+    print(f"Creating worker {work}. Info: {current_worker_info}")
     # Give worker a job:
     if work == "check_links":
         # current_workers[WorkerID]["current_message"] = f"Got job checking strings!"
