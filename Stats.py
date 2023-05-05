@@ -60,27 +60,49 @@ def get_folder_amount():
                 total_folders_archive = total_folders
             
 
-    
-def get_total_file_size(path, checked_files=None):
-    global total_files_size_archive
-    if checked_files is None:
-        checked_files = set()
-    total_size = 0
+def get_total_file_size_subfolder(path, checked_files):
+    size_subfolder = 0
     for root, dirs, files in os.walk(path):
         for file in files:
             file_path = os.path.join(root, file)
             if file_path not in checked_files:
                 checked_files.add(file_path)
-                total_size += os.path.getsize(file_path)
-    total_files_size_archive = total_size
-    for dir in dirs:
-        dir_path = os.path.join(root, dir)
-        if dir_path not in checked_files:
-            checked_files.add(dir_path)
-            size = get_total_file_size(dir_path, checked_files)
-            total_size += size
-    total_files_size_archive = total_size
-    get_total_file_size(path)
+                size_subfolder += os.path.getsize(file_path)
+    return size_subfolder
+    
+def get_total_file_size(path, checked_files=None):
+    if checked_files is None:
+        checked_files = set()
+    global total_files_size_archive
+    global total_files_size_archive_current_folder
+    total_files_size_archive_current_folder = 0
+    for root, dirs, files in os.walk(path):
+        for dir in dirs:
+            dir_path = os.path.join(root, dir)
+            size = get_total_file_size_subfolder(dir_path, checked_files)
+            total_files_size_archive += size
+
+
+    # if checked_files is None:
+    #     checked_files = set()
+    # total_size = 0
+    # total_files_size_archive_current_folder = 0
+    # for root, dirs, files in os.walk(path):
+    #     for file in files:
+    #         file_path = os.path.join(root, file)
+    #         if file_path not in checked_files:
+    #             checked_files.add(file_path)
+    #             total_size += os.path.getsize(file_path)
+    #             total_files_size_archive_current_folder = total_size
+    
+    # for dir in dirs:
+    #     dir_path = os.path.join(root, dir)
+    #     if dir_path not in checked_files:
+    #         checked_files.add(dir_path)
+    #         size = get_total_file_size(dir_path, checked_files)
+    #         total_size += size
+    #         total_files_size_archive = total_size
+    # get_total_file_size(path)
 
 def info_if_empty(var_to_check = "", string_to_print = ""):
     if var_to_check == 0:
@@ -92,7 +114,7 @@ def update_terminal():
     global total_files_archive
     global total_files_size_archive
     global ErrorFileLength
-
+    global total_files_size_archive_current_folder
 
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -108,7 +130,7 @@ def update_terminal():
 
         # Add the totals row and footer
         totals = f"Last refresh: {datetime.datetime.now().strftime('%H:%M:%S')}\n"
-        totals +=  f'Total filesize of Archive:  {info_if_empty(var_to_check=total_files_size_archive, string_to_print=filesize_format(total_files_size_archive))}\n'
+        totals +=  f'Total filesize of Archive:  {info_if_empty(var_to_check=total_files_size_archive, string_to_print=filesize_format(total_files_size_archive))} ({info_if_empty(var_to_check=total_files_size_archive_current_folder, string_to_print=filesize_format(total_files_size_archive_current_folder))})\n'
         totals +=  f'Total files in Archive:     {info_if_empty(total_files_archive, total_files_archive)}\n'
         totals +=  f'Total folders in Archive:   {info_if_empty(total_folders_archive, total_folders_archive)}\n'
         # totals += f'\n'
