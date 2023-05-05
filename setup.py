@@ -1,6 +1,6 @@
 import os
 import configparser
-
+import sys
 
 
 def create_settings_file(): # TODO Update the created settings file
@@ -12,46 +12,53 @@ def create_settings_file(): # TODO Update the created settings file
         with open("settings.ini", "w") as file:
             file.write(
                 """
-    [DEFAULT]
+[DEFAULT]
 
-    ;Check for missmatch between the Database and the actual files inside of the Archive. 
-    ;check_for_DB_missmatch = False
+;;;; Work queue settings ;;;;
+; max_queue_size = 500
+; max_combination_gen_size = 500
 
-    ; Length of string. Example i.imgur.com/AAAAA.jpg
-    ;string_length = 5
 
-    ; Percentage of CPU to use
-    ;max_threads_percent = 90
+;;;; Threads settings ;;;;
+; Percentage of CPU to use.
+;max_threads = 10
 
-    ; Number of times to run iterations towards new URLS.
-    ; This is mostly for debugging. 
-    ; Set to -1 for infinite iterations
-    ;max_iterations_per_run = -1
 
-    ; Max Queue size:
-    ; max_queue_size = 500
+;;;; String generation ;;;;
+; Length of string. Example i.imgur.com/AAAAA.jpg
+;string_length = 5
+;url_base = "https://i.imgur.com/"
 
-    ; Max Generation queue size:
-    ; max_combination_gen_size = 500
+; Number of times to run iterations towards new URLS.
+; Set to -1 for infinite iterations
+; max_iterations_per_run = -1
 
-    ; File locations:
 
-    ; Download folder location. 
-    ; DO NOT USE "/" AT THE END!
-    ; To just use Current Dir, enter only a punctationmark.
-    ;download_folder_root_location    = . 
+;;;; Optimization ;;;
+;Check for missmatch between the Database and the actual files inside of the Archive. 
+;check_for_DB_missmatch = False
 
-    ; If this is just a word, a dir will be created in Current working directory,
-    ; If it is a path it will use the Path.
-    ;download_folder_name = Archive 
 
-    ;worker_print_mini = False
+;;;; Output settings ;;;;
+; Make workers in the Workerblock smaller. Usefull if you got many threads
+;worker_print_mini = False
+;worker_print_disable = False
 
-    ;db_folder_path_suffix = DB
-    ;CheckedURLsFile      = 0checkedURLs.txt
-    ;redirect_urls_filename         = 0RedirectURLs.txt
-    ;error_filename            = 0ErrorStings.txt
-    ;retry_filename     = 0RetryStrings.txt
+
+;;;; Folder names ;;;;
+; Download folder location. 
+; DO NOT USE "/" AT THE END!
+; To just use Current Dir, enter only a punctationmark.
+;download_folder_root_location = . 
+;download_folder_name = Archive 
+;db_folder_path_suffix = DB
+
+
+;;;; File names ;;;;
+;CheckedURLsFile = 0checkedURLs.txt
+;redirect_urls_filename = 0RedirectURLs.txt
+;error_filename = 0ErrorStings.txt
+;retry_filename = 0RetryStrings.txt
 
     """
         )
@@ -59,6 +66,7 @@ def create_settings_file(): # TODO Update the created settings file
         input(
             "Settings.ini is now created. Rerun the script after editing the settings. Press any key to exit."
         )
+        sys.exit()
 
 
 
@@ -100,7 +108,7 @@ def setup_variables():
         "download_folder": "",
         "character_list": "",
         "generated_string_length": 5,
-        "url_base": ","
+        "url_base": "https://i.imgur.com/"
 
     }
     # Settings currently not used, but still want to have around:
@@ -137,7 +145,8 @@ def setup_variables():
     # Settings about the URL that are geing created
     returning_settings["character_list"] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     returning_settings["generated_string_length"] = int(config.get("DEFAULT", "string_length", fallback=returning_settings["string_length"]))
-    returning_settings["url_base"] = "https://i.imgur.com/"
+    # returning_settings["url_base"] = "https://i.imgur.com/"
+    returning_settings["url_base"] = int(config.get("DEFAULT", "url_base", fallback=returning_settings["url_base"]))
 
 
     # Optimization settings. These are optional, but if you want to make sure that the DB is OK, these should be enables.
