@@ -227,7 +227,11 @@ def update_terminal():
 
             for worker in current_workers.values():
                 workerStats = ""
+                keys_to_ignore = ("WorkerID")
+                
                 for item in worker.keys():
+                    if item in keys_to_ignore:
+                        continue
                     workerStats = workerStats + f"  {item}: {worker[item]}\n"
 
                 workerBlock = (
