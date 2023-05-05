@@ -649,7 +649,7 @@ def write_last_info(mode=""):
         file.write(str(tuple))
 
 
-os.system("clear")
+# os.system("clear")
 
 # Load last StringX
 write_last_info(mode="Restore")
