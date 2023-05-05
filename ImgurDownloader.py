@@ -652,9 +652,10 @@ def write_last_info(mode=""):
 # os.system("clear")
 
 # Load last StringX
+print("Loading last info")
 write_last_info(mode="Restore")
 
-
+print("Creating Workers ")
 create_new_worker(work="update_terminal")
 create_new_worker(work="create_strings")
 create_new_worker(work="fetch_files_number_and_size")
