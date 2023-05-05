@@ -19,8 +19,11 @@ def create_new_worker(work):
 
 
     # Give worker a job:
-    if work == "get_file_and_folder_amount":
-        t = threading.Thread(target=get_file_and_folder_amount)
+    if work == "get_file_amount":
+        t = threading.Thread(target=get_file_amount)
+    
+    if work == "get_folder_amount":
+        t = threading.Thread(target=get_folder_amount)
 
     elif work == "get_total_file_size":
         # download_folder = settings["download_folder"]
@@ -37,17 +40,21 @@ def create_new_worker(work):
     t.start()
 
 
-def get_file_and_folder_amount():
+def get_file_amount():
     global total_files_archive
-    global total_folders_archive
     while True:
         total_files = 0
-        total_folders = 0
         for root, dirs, files in os.walk(settings["download_folder"]):
             total_files += len(files)
-            total_folders += len(dirs)
-
         total_files_archive = total_files
+
+
+def get_folder_amount():
+    global total_folders_archive
+    while True:
+        total_folders = 0
+        for root, dirs, files in os.walk(settings["download_folder"]):
+            total_folders += len(dirs)
         total_folders_archive = total_folders
             
 
@@ -122,5 +129,6 @@ settings = setup_variables()
 # get_total_file_size(settings["download_folder"])
 
 create_new_worker(work="update_terminal")
-create_new_worker(work="get_file_and_folder_amount")
+create_new_worker(work="get_folder_amount")
+create_new_worker(work="get_file_amount")
 create_new_worker(work="get_total_file_size")
