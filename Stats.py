@@ -72,12 +72,16 @@ def get_total_file_size(path, checked_files=None):
     total_files_size_archive = total_size
     get_total_file_size(path)
 
+def info_if_empty(var_to_check = "", string_to_print = ""):
+    if var_to_check == 0:
+        return "Calculating..."
+    else: 
+        return string_to_print
+
 def update_terminal():
     global total_files_archive
     global total_files_size_archive
     global ErrorFileLength
-
-
 
 
     while True:
@@ -90,11 +94,13 @@ def update_terminal():
         # Create the header
         header = "#################\n# Archive Stats #\n#################"
 
+
+
         # Add the totals row and footer
         totals = f"Last refresh: {datetime.datetime.now().strftime('%H:%M:%S')}\n"
-        totals +=  f'Total filesize of Archive:  {filesize_format(total_files_size_archive)}\n'
-        totals +=  f'Total files in Archive:     {total_files_archive}\n'
-        totals +=  f'Total folders in Archive:   {total_folders_archive}\n'
+        totals +=  f'Total filesize of Archive:  {info_if_empty(var_to_check=total_files_size_archive, string_to_print=filesize_format(total_files_size_archive))}\n'
+        totals +=  f'Total files in Archive:     {info_if_empty(total_files_archive, total_files_archive)}\n'
+        totals +=  f'Total folders in Archive:   {info_if_empty(total_folders_archive, total_folders_archive)}\n'
         # totals += f'\n'
         # totals += f'Lines in Error registry:    {ErrorFileLength}\n'
         
