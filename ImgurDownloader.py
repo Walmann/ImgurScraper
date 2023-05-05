@@ -126,7 +126,7 @@ def update_terminal():
             # Add the totals row and footer
             totals =  f'Current session downloads:     {total_downloaded}\n'
             totals += f'Current session URLs tested:   {total_tested}\n'
-            totals += f'Number of threads:             {threads_amount}\n'
+            # totals += f'Number of threads:             {threads_amount}\n'
             totals += f'Queue length:                  {work_queue.maxsize}\n'
             totals += f'Download Folder:               {settings["download_folder"]}\n'
             totals += '\n'
