@@ -136,7 +136,7 @@ def setup_variables():
 
 
     # Variables about multithreading
-    returning_settings["max_threads"] = int(os.cpu_count() - 1)
+    returning_settings["max_threads"] = int(config.get("DEFAULT","max_threads",fallback=returning_settings["max_threads"],))
     # returning_settings["max_threads_percent"] = int(config.get("DEFAULT","max_threads_percent",fallback=returning_settings["max_threads_percent"],))
 
 

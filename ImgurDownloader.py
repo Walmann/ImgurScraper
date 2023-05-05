@@ -658,5 +658,5 @@ write_last_info(mode="Restore")
 create_new_worker(work="update_terminal")
 create_new_worker(work="create_strings")
 create_new_worker(work="fetch_files_number_and_size")
-for i in range(settings["max_threads"] - 3):  # -3 gets reserved for updating filesize etc
+for i in range(settings["max_threads"]):
     create_new_worker(work="check_links")
