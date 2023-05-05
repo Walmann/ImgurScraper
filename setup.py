@@ -20,7 +20,7 @@ def create_settings_file(): # TODO Update the created settings file
 
 
 ;;;; Threads settings ;;;;
-; Number of threads to use.
+; Number of threads to use to check and download links.
 ;max_threads = 10
 
 
@@ -91,6 +91,7 @@ def setup_variables():
     returning_settings = {
         "check_for_DB_missmatch": False,
         "worker_print_mini": False,
+        "worker_print_disable":  False,
         "checked_url_filename": "0checkedURLs.txt",
         "db_folder_path_suffix": "DB",
         "download_folder_root_location": ".",
@@ -108,7 +109,7 @@ def setup_variables():
         "download_folder": "",
         "character_list": "",
         "generated_string_length": 5,
-        "url_base": "https://i.imgur.com/"
+        "url_base": "https://i.imgur.com/",
 
     }
     # Settings currently not used, but still want to have around:
@@ -146,7 +147,7 @@ def setup_variables():
     returning_settings["character_list"] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     returning_settings["generated_string_length"] = int(config.get("DEFAULT", "string_length", fallback=returning_settings["string_length"]))
     # returning_settings["url_base"] = "https://i.imgur.com/"
-    returning_settings["url_base"] = int(config.get("DEFAULT", "url_base", fallback=returning_settings["url_base"]))
+    returning_settings["url_base"] = config.get("DEFAULT", "url_base", fallback=returning_settings["url_base"])
 
 
     # Optimization settings. These are optional, but if you want to make sure that the DB is OK, these should be enables.
@@ -154,6 +155,7 @@ def setup_variables():
 
     # Output settings: 
     returning_settings['worker_print_mini'] = config.get('DEFAULT','worker_print_mini',fallback=returning_settings['worker_print_mini'],)
+    returning_settings['worker_print_disable'] = config.get('DEFAULT','worker_print_disable',fallback=returning_settings['worker_print_disable'],)
 
 
     return returning_settings

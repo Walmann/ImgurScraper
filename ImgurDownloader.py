@@ -88,11 +88,6 @@ def update_terminal():
 
     while True:
         try:
-            # os.system("clr")
-
-            # TODO Make it prettier....
-
-
             # Create the header
             header = "\n\n\n\n\nIMGUR DOWNLOADER\n"
             header += f"Last refresh: {datetime.datetime.now().strftime('%H:%M:%S')}"
@@ -100,33 +95,34 @@ def update_terminal():
             worker_rows = []
 
             # Create the worker section
+            if not settings["worker_print_disable"]:
+                for worker in current_workers.values():
+                    workerStats = ""
+                    worker_rows.append(f"Workers: {f'{len(current_workers)}'}\n")
+                    if not settings["worker_print_mini"]:
+                        keys_to_ignore = ("WorkerID")
+                        
+                        for item in worker.keys():
+                            if item in keys_to_ignore:
+                                continue
+                            workerStats = workerStats + f"  {item}: {worker[item]}\n"
 
-            for worker in current_workers.values():
-                workerStats = ""
-                if not settings["worker_print_mini"]:
-                    keys_to_ignore = ("WorkerID")
-                    
-                    for item in worker.keys():
-                        if item in keys_to_ignore:
-                            continue
-                        workerStats = workerStats + f"  {item}: {worker[item]}\n"
+                        workerBlock = (
+                            f"Worker: {worker['WorkerID'][:8].upper()}\n" + workerStats + "\n"
+                        )
 
-                    workerBlock = (
-                        f"Worker: {worker['WorkerID'][:8].upper()}\n" + workerStats + "\n"
-                    )
-
-                else: 
-                    workerBlock = (f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}")
-                    if 'StringX' in worker:
-                        workerBlock += f" -> {worker['StringX']}"
-                    workerBlock += "\n"
-                worker_rows.append(workerBlock)
+                    else: 
+                        workerBlock = (f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}")
+                        if 'StringX' in worker:
+                            workerBlock += f" -> {worker['StringX']}"
+                        workerBlock += "\n"
+                    worker_rows.append(workerBlock)
 
 
             # Add the totals row and footer
             totals =  f'Current session downloads:     {total_downloaded}\n'
             totals += f'Current session URLs tested:   {total_tested}\n'
-            # totals += f'Number of threads:             {threads_amount}\n'
+            totals += f'Number of threads:             {len(current_workers)}\n'
             totals += f'Queue length:                  {work_queue.maxsize}\n'
             totals += f'Download Folder:               {settings["download_folder"]}\n'
             totals += '\n'
@@ -148,7 +144,7 @@ def update_terminal():
             for error in ErrorLogs:
                 footer.append(str(error) + "\n")
 
-            print(f"{header}\n{totals}\n{f'Workers: {len(current_workers)}'}\n\n{''.join(worker_rows)}\n")
+            print(f"{header}\n{totals}\n\n\n{''.join(worker_rows)}\n")
             
             
             if len(footer) >= 1:
