@@ -96,82 +96,82 @@ def update_terminal():
             worker_rows = []
             workerBlock = ""
 
-            if StartedWork:
-                if not settings["worker_print_disable"]:
-                    if settings["worker_print_mini"]:
-                        for worker in current_workers.values():
-                            worker_rows.append(f"Workers: {f'{len(current_workers)}'}\n")
-                            workerBlock = (f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}")
-                            if 'StringX' in worker:
-                                workerBlock += f" -> {worker['StringX']}"
-                            workerBlock += "\n"
-                            worker_rows.append(workerBlock)
+            # if StartedWork:
+            if not settings["worker_print_disable"]:
+                if settings["worker_print_mini"]:
+                    for worker in current_workers.values():
+                        worker_rows.append(f"Workers: {f'{len(current_workers)}'}\n")
+                        workerBlock = (f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}")
+                        if 'StringX' in worker:
+                            workerBlock += f" -> {worker['StringX']}"
+                        workerBlock += "\n"
+                        worker_rows.append(workerBlock)
 
-                    if settings["worker_print_summary"]:
-                        jobs_summary = {}
+                if settings["worker_print_summary"]:
+                    jobs_summary = {}
+                    
+                    for worker in current_workers.values():
+                        if worker["Current_Work"] in jobs_summary:
+                            jobs_summary[worker["Current_Work"]] +=1
+                        else:
+                            jobs_summary[worker["Current_Work"]] = 1
+                    for job in jobs_summary:
+                        worker_rows.append(f"{job}: {jobs_summary[job]}\n")
+
+                    
+                else: 
+                    for worker in current_workers.values():
+                        workerStats = ""
+                        worker_rows.append(f"Workers: {f'{len(current_workers)}'}\n")
+                        keys_to_ignore = ("WorkerID")
                         
-                        for worker in current_workers.values():
-                            if worker["Current_Work"] in jobs_summary:
-                                jobs_summary[worker["Current_Work"]] +=1
-                            else:
-                                jobs_summary[worker["Current_Work"]] = 1
-                        for job in jobs_summary:
-                            worker_rows.append(f"{job}: {jobs_summary[job]}\n")
+                        for item in worker.keys():
+                            if item in keys_to_ignore:
+                                continue
+                            workerStats = workerStats + f"  {item}: {worker[item]}\n"
 
-                        
-                    else: 
-                        for worker in current_workers.values():
-                            workerStats = ""
-                            worker_rows.append(f"Workers: {f'{len(current_workers)}'}\n")
-                            keys_to_ignore = ("WorkerID")
-                            
-                            for item in worker.keys():
-                                if item in keys_to_ignore:
-                                    continue
-                                workerStats = workerStats + f"  {item}: {worker[item]}\n"
-
-                            workerBlock = (
-                                f"Worker: {worker['WorkerID'][:8].upper()}\n" + workerStats + "\n"
-                            )
-                            worker_rows.append(workerBlock)
-                        
+                        workerBlock = (
+                            f"Worker: {worker['WorkerID'][:8].upper()}\n" + workerStats + "\n"
+                        )
+                        worker_rows.append(workerBlock)
+                    
 
 
-                # Add the totals row and footer
-                totals =  f'Current session downloads:     {total_downloaded}\n'
-                totals += f'Current session URLs tested:   {total_tested}\n'
-                totals += f'Number of threads:             {len(current_workers)}\n'
-                totals += f'Queue length:                  {work_queue.maxsize}\n'
-                totals += f'Download Folder:               {settings["download_folder"]}\n'
-                totals += '\n'
-                totals += f'Total iterations:              {total_iterations}\n'
-                totals += f'Latest Iteration:              {latest_string}\n'
-                totals += f'Iterations since last refresh: {total_iterations-pppIterations}\n'
-                totals += f'Estimated latest string:       {estimated_latest_string}\n'
-                totals += f'Lines in Error registry:       {ErrorFileLength}\n'
+            # Add the totals row and footer
+            totals =  f'Current session downloads:     {total_downloaded}\n'
+            totals += f'Current session URLs tested:   {total_tested}\n'
+            totals += f'Number of threads:             {len(current_workers)}\n'
+            totals += f'Queue length:                  {work_queue.maxsize}\n'
+            totals += f'Download Folder:               {settings["download_folder"]}\n'
+            totals += '\n'
+            totals += f'Total iterations:              {total_iterations}\n'
+            totals += f'Latest Iteration:              {latest_string}\n'
+            totals += f'Iterations since last refresh: {total_iterations-pppIterations}\n'
+            totals += f'Estimated latest string:       {estimated_latest_string}\n'
+            totals += f'Lines in Error registry:       {ErrorFileLength}\n'
 
-                # totals += '\n'
-                # totals += f'Total number of files in archive folder: {str(archive_files_amount)}\n' # See "Stats.py" for this info
-                # totals += f'Total size of archive folder (in bytes): {archive_files_size}\n'
+            # totals += '\n'
+            # totals += f'Total number of files in archive folder: {str(archive_files_amount)}\n' # See "Stats.py" for this info
+            # totals += f'Total size of archive folder (in bytes): {archive_files_size}\n'
 
 
 
 
-                # Print the full status message
-                footer = []
-                for error in ErrorLogs:
-                    footer.append(str(error) + "\n")
+            # Print the full status message
+            footer = []
+            for error in ErrorLogs:
+                footer.append(str(error) + "\n")
 
-                print(f"{header}\n{totals}\n\n\n{''.join(worker_rows)}\n")
-                
-                
-                if len(footer) >= 1:
-                    print("Last 3 Error messages:\n")
-                for error in footer[-3:]:
-                    print(str(error) + "\n")
+            print(f"{header}\n{totals}\n\n\n{''.join(worker_rows)}\n")
+            
+            
+            if len(footer) >= 1:
+                print("Last 3 Error messages:\n")
+            for error in footer[-3:]:
+                print(str(error) + "\n")
 
-                write_last_info()
-                pppIterations = total_iterations
+            write_last_info()
+            pppIterations = total_iterations
 
             if StartedWork:
                 time.sleep(0.5)
@@ -524,6 +524,9 @@ def create_strings(current_worker_info):
     global latest_string
 
     iterations_this_run = settings["max_iterations_per_run"]
+
+    Batched_before_save = 50
+
     try:
         update_worker_status(
             message="I will now start generating combinations.",
@@ -632,7 +635,7 @@ def write_last_info(mode=""):
     global total_iterations
     global latest_string_from_File
 
-    # TODO Change this to use shorter single variable.
+    
     filePath = f"{settings['db_folder']}/00LastStringX.txt"
     try:
         if mode == "Restore":
