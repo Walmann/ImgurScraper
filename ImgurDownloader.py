@@ -1,5 +1,5 @@
 # import sys
-import configparser
+
 import datetime
 import imghdr
 import itertools
@@ -8,148 +8,23 @@ import queue
 import threading
 import time
 import uuid
-
 import requests
 
-if not os.path.isfile("settings.ini"):
-    with open("settings.ini", "w") as file:
-        file.write(
-            """
-[DEFAULT]
-
-;Check for missmatch between the Database and the actual files inside of the Archive. 
-;check_for_DB_missmatch = False
-
-; Length of string. Example i.imgur.com/AAAAA.jpg
-;string_length = 5
-
-; Percentage of CPU to use
-;max_threads_percent = 90
-
-; Number of times to run iterations towards new URLS.
-; This is mostly for debugging. 
-; Set to -1 for infinite iterations
-;max_iterations = -1
-
-; Max Queue size:
-; max_queue_size = 500
-
-; Max Generation queue size:
-; max_combination_gen_size = 500
-
-; File locations:
-
-; Download folder location. 
-; DO NOT USE "/" AT THE END!
-; To just use Current Dir, enter only a punctationmark.
-;download_folder_location    = . 
-
-; If this is just a word, a dir will be created in Current working directory,
-; If it is a path it will use the Path.
-;download_folder_name = Archive 
+from setup import setup_variables
 
 
-;DB_files_path_prefix = DB
-;CheckedURLsFile      = 0checkedURLs.txt
-;RedirectURLs         = 0RedirectURLs.txt
-;ErrorFile            = 0ErrorStings.txt
-;RetryStringsFile     = 0RetryStrings.txt
-
-"""
-        )
-        print(
-            "Settings.ini is now created. Rerun the script after editing the settings."
-        )
+settings = setup_variables()
 
 
-# SETTINGS
-# To change these settings, write them as an entry in settings.ini.
-# Default settings:
-default_settings = {
-    "check_for_DB_missmatch": False,
-    "string_length": 5,
-    "max_threads_percent": 90,
-    "max_iterations": -1,
-    "download_folder_location": ".",
-    "download_folder_name": "Archive",
-    "DB_files_path_prefix": "DB",
-    "CheckedURLsFile": "0checkedURLs.txt",
-    "RedirectURLs": "0RedirectURLs.txt",
-    "ErrorFile": "0ErrorStings.txt",
-    "RetryStringsFile": "0RetryStrings.txt",
-    "max_queue_size": 500,
-    "max_combination_gen_size": 500,
-}
-
-config = configparser.ConfigParser()
-config.read("settings.ini")
-check_for_DB_missmatch = int(
-    config.get(
-        "DEFAULT",
-        "check_for_DB_missmatch",
-        fallback=default_settings["check_for_DB_missmatch"],
-    )
-)
-
-string_length = int(
-    config.get("DEFAULT", "string_length", fallback=default_settings["string_length"])
-)
-max_threads_percent = int(
-    config.get(
-        "DEFAULT",
-        "max_threads_percent",
-        fallback=default_settings["max_threads_percent"],
-    )
-)
-max_iterations = int(
-    config.get("DEFAULT", "max_iterations", fallback=default_settings["max_iterations"])
-)
-
-download_folder_name = config.get(
-    "DEFAULT", "download_folder_name", fallback=default_settings["download_folder_name"]
-)
-download_folder_location = config.get(
-    "DEFAULT",
-    "download_folder_location",
-    fallback=default_settings["download_folder_location"],
-)
-DB_files_path_prefix = config.get(
-    "DEFAULT", "DB_files_path_prefix", fallback=default_settings["DB_files_path_prefix"]
-)
-
-CheckedURLsFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'CheckedURLsFile', fallback=default_settings['CheckedURLsFile'])}"  # noqa: E501
-RedirectURLs = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'RedirectURLs', fallback=default_settings['RedirectURLs'])}"  # noqa: E501
-ErrorFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'ErrorFile', fallback=default_settings['ErrorFile'])}"
-RetryStringsFile = f"{download_folder_location}/{DB_files_path_prefix}/{config.get('DEFAULT', 'RetryStringsFile', fallback=default_settings['RetryStringsFile'])}"
-max_queue_size = int(
-    config.get("DEFAULT", "max_queue_size", fallback=default_settings["max_queue_size"])
-)
-max_combination_gen_size = int(
-    config.get(
-        "DEFAULT",
-        "max_combination_gen_size",
-        fallback=default_settings["max_combination_gen_size"],
-    )
-)
-download_folder = f"{download_folder_location}/{download_folder_name}"
-DB_Folder = f"{download_folder_location}/{DB_files_path_prefix}"
-
-CharacterListA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-url_base = "https://i.imgur.com/"
-
-
-
-file_name = ""
+# Numbers used by update_terminal
 redirectFileLength = 0
 CheckedURLFileLength = 0
 ErrorFileLength = 0
 
 
-# max_threads = int(os.cpu_count() * max_threads_percent / 100)
-max_threads = int(os.cpu_count() - 1)
-work_queue = queue.Queue(maxsize=max_queue_size)
-# queue = queue.Queue()
-string_set = set()  # create an empty set to store the strings
+work_queue = queue.Queue(maxsize=settings["max_queue_size"])
+
+# string_set = set()  # create an empty set to store the strings
 threads_amount = 0
 total_downloaded = 0
 total_tested = 0
@@ -169,12 +44,12 @@ def compare_files():
     checked_files = []
 
     # Get list of files in Archive folder
-    for root, dirs, files in os.walk(download_folder):
+    for root, dirs, files in os.walk(settings["download_folder"]):
         for file in files:
             archive_files.append(file)
 
     # Get list of files in checkedURLs.txt
-    with open(CheckedURLsFile, "r") as f:
+    with open(settings["checked_url_filename"], "r") as f:
         for line in f:
             checked_files.append(line.strip())
 
@@ -190,6 +65,7 @@ def sizeof_fmt(num, suffix="B"):
             return f"{num:.1f} {unit}{suffix}"
         num /= 1024.0
     return f"{num:.1f} Yi{suffix}"
+
 def update_terminal():
     global current_workers
     global total_downloaded
@@ -207,7 +83,7 @@ def update_terminal():
     global work_queue
     pppIterations = 0
 
-    estimated_latest_string = get_last_file_name(download_folder)
+    estimated_latest_string = get_last_file_name(settings["download_folder"])
 
 
     while True:
@@ -215,7 +91,7 @@ def update_terminal():
             # os.system("clr")
 
             # TODO Make it prettier....
-            # terminal_size_width = shutil.get_terminal_size().columns
+
 
             # Create the header
             header = "\n\n\n\n\nIMGUR DOWNLOADER\n"
@@ -227,36 +103,42 @@ def update_terminal():
 
             for worker in current_workers.values():
                 workerStats = ""
-                keys_to_ignore = ("WorkerID")
-                
-                for item in worker.keys():
-                    if item in keys_to_ignore:
-                        continue
-                    workerStats = workerStats + f"  {item}: {worker[item]}\n"
+                if not settings["worker_print_mini"]:
+                    keys_to_ignore = ("WorkerID")
+                    
+                    for item in worker.keys():
+                        if item in keys_to_ignore:
+                            continue
+                        workerStats = workerStats + f"  {item}: {worker[item]}\n"
 
-                workerBlock = (
-                    f"Worker: {worker['WorkerID'][:8].upper()}\n" + workerStats + "\n"
-                )
+                    workerBlock = (
+                        f"Worker: {worker['WorkerID'][:8].upper()}\n" + workerStats + "\n"
+                    )
 
+                else: 
+                    workerBlock = (f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}")
+                    if 'StringX' in worker:
+                        workerBlock += f" -> {worker['StringX']}"
+                    workerBlock += "\n"
                 worker_rows.append(workerBlock)
 
+
             # Add the totals row and footer
-            totals = f"Current session downloads: {total_downloaded}\n"
-            totals += f"Current session URLs tested: {total_tested}\n"
-            totals += f"Number of threads: {threads_amount}\n"
-            totals += f"Queue length: {work_queue.maxsize}\n"
-            totals += f"Download Folder: {download_folder}\n"
+            totals =  f'Current session downloads:     {total_downloaded}\n'
+            totals += f'Current session URLs tested:   {total_tested}\n'
+            totals += f'Number of threads:             {threads_amount}\n'
+            totals += f'Queue length:                  {work_queue.maxsize}\n'
+            totals += f'Download Folder:               {settings["download_folder"]}\n'
+            totals += '\n'
+            totals += f'Total iterations:              {total_iterations}\n'
+            totals += f'Latest Iteration:              {latest_string}\n'
+            totals += f'Iterations since last refresh: {total_iterations-pppIterations}\n'
+            totals += f'Estimated latest string:       {estimated_latest_string}\n'
+            totals += f'Lines in Error registry:       {ErrorFileLength}\n'
 
-            totals += "\n"
-            totals += f"Total iterations: {total_iterations}\n"
-            totals += f"Latest Iteration: {latest_string}\n"
-            totals += f"Iterations since last refresh: {total_iterations-pppIterations}\n"
-            totals += f"Estimated latest string: {estimated_latest_string}\n"
-
-            totals += "\n"
-            totals += f"Total number of files in archive folder: {str(archive_files_amount)}\n"
-            totals += f"Total size of archive folder (in bytes): {archive_files_size}\n"
-            totals += f"Lines in Error registry:                 {ErrorFileLength}\n"
+            # totals += '\n'
+            # totals += f'Total number of files in archive folder: {str(archive_files_amount)}\n' # See "Stats.py" for this info
+            # totals += f'Total size of archive folder (in bytes): {archive_files_size}\n'
 
 
 
@@ -266,7 +148,9 @@ def update_terminal():
             for error in ErrorLogs:
                 footer.append(str(error) + "\n")
 
-            print(f"{header}\n{totals}\n{'Workers:'}\n\n{''.join(worker_rows)}\n")
+            print(f"{header}\n{totals}\n{f'Workers: {len(current_workers)}'}\n\n{''.join(worker_rows)}\n")
+            
+            
             if len(footer) >= 1:
                 print("Last 3 Error messages:\n")
             for error in footer[-3:]:
@@ -313,7 +197,7 @@ def fetch_checked_file(StringX):
         :-2
     ]  # Use the first N-2 characters of the string as the prefix for the file name
     # Construct the file path using the prefix
-    file_path = f"{DB_Folder}/{file_prefix}.txt"
+    file_path = f'{settings["db_folder"]}/{file_prefix}.txt'
     return file_path
 
 
@@ -323,7 +207,7 @@ def is_string_used_IO(StringX):
     ]  # Use the first N-2 characters of the string as the prefix for the file name
     file_path = (
         # Construct the file path using the prefix
-        f"{download_folder}/{sub_folder}"
+        f'{settings["download_folder"]}/{sub_folder}'
     )
 
     # temp = os.path.abspath(file_path)
@@ -356,15 +240,6 @@ def is_string_used(string="", firstRun=False):
         is_string_used(string, firstRun=firstRun)
 
 
-def is_url_redirect(string):
-    if not os.path.exists(RedirectURLs):
-        open(RedirectURLs, "w").close()
-
-    with open(RedirectURLs, "r") as f:
-        # temp = string in f.read()
-        return string in f.read()
-
-
 def write_string(string):
     with open(fetch_checked_file(string), "a+") as f:
         f.write(string + "\n")
@@ -373,7 +248,7 @@ def write_string(string):
 
 
 def write_error_string(error="", message="", StringX=""):
-    with open(ErrorFile, "a+") as f:
+    with open(settings["error_filename"], "a+") as f:
         now = datetime.datetime.now()
         current_time = now.strftime("%H:%M:%S")
 
@@ -383,13 +258,13 @@ def write_error_string(error="", message="", StringX=""):
 
 
 def write_redirect_url(string):
-    with open("RedirectURLs.txt", "a+") as f:
+    with open(settings["redirect_urls_filename"], "a+") as f:
         f.write(string + "\n")
     write_string(string)
 
 
 def write_retry_strings(string):
-    with open("RetryStrings.txt", "a+") as f:
+    with open(settings["retry_filename"], "a+") as f:
         if string.endsWith("\n"):
             f.write(string)
         f.write(string + "\n")
@@ -399,14 +274,14 @@ def write_retry_strings(string):
 
 def download_image(string, response, current_worker_info):
     global total_downloaded
-
+    file_name = ""
     update_worker_status("Getting file extension", current_worker_info)
     file_extension = get_file_extension(response)
     file_name = string + file_extension
     update_worker_status(
         f"Got file extension and filename {file_name}", current_worker_info
     )
-    dir_name = os.path.join(download_folder, file_name[:3])
+    dir_name = os.path.join(settings["download_folder"], file_name[:3])
 
     update_worker_status("Configurating Filepath", current_worker_info)
     if not os.path.exists(dir_name):
@@ -488,7 +363,7 @@ def check_links(current_worker_info, retries=0, response=None):
         update_worker_status(
             f"Connecting to URL, retries: {retries}", current_worker_info
         )
-        url = url_base + StringX + ".jpg"
+        url = settings["url_base"] + StringX + ".jpg"
         response = requests.get(url, allow_redirects=False, timeout=15)
         response_status = response.status_code
         update_worker_status(
@@ -507,7 +382,7 @@ def check_links(current_worker_info, retries=0, response=None):
             current_worker_info=current_worker_info, retries=retries, response=response
         )
 
-    except HTTPSConnectionPool as e:
+    except ConnectionError as e:
         update_worker_status(
             "Got timeout. Adding to Retry list for later.", current_worker_info
         )
@@ -615,15 +490,15 @@ def fetch_files_number_and_size():
     while True:
         try:
             # Get total number of files and total size of archive folder
-            global archive_files_amount
-            global archive_files_size
-            global redirectFileLength
-            global CheckedURLFileLength
+            # global archive_files_amount
+            # global archive_files_size
+            # global redirectFileLength
+            # global CheckedURLFileLength
             global ErrorFileLength
 
-            archive_files_amount = 0
+            # archive_files_amount = 0
 
-            ErrorFileLength = get_file_length(ErrorFile)
+            ErrorFileLength = get_file_length(settings["error_filename"])
 
         except Exception as e:
             write_error_string(message=f"Error updating stats: {e}")
@@ -631,9 +506,10 @@ def fetch_files_number_and_size():
 
 
 def create_strings(current_worker_info):
-    global max_iterations
     global total_iterations
     global latest_string
+
+    iterations_this_run = settings["max_iterations_per_run"]
     try:
         update_worker_status(
             message="I will now start generating combinations.",
@@ -641,7 +517,7 @@ def create_strings(current_worker_info):
         )
         Caught_up_to_previous_value = False
 
-        for combination in itertools.product(CharacterListA, repeat=string_length):
+        for combination in itertools.product(settings["character_list"], repeat=settings["generated_string_length"]):
             StringX = "".join(combination)
             latest_string = StringX
             if not Caught_up_to_previous_value:
@@ -672,11 +548,11 @@ def create_strings(current_worker_info):
                 else:
                     work_queue.put(StringX)
                     # string_set.add(StringX)
-                    max_iterations -= 1
+                    iterations_this_run -= 1
                     # check_links(StringX=StringX)
                     break
 
-            if max_iterations == 0:
+            if iterations_this_run == 0:
                 break
 
         # Wait for all tasks to complete
@@ -738,7 +614,8 @@ def write_last_info(mode=""):
     global total_iterations
     global latest_string_from_File
 
-    filePath = f"{download_folder_location}/{DB_files_path_prefix}/00LastStringX.txt"
+    # TODO Change this to use shorter single variable.
+    filePath = f"{settings['db_folder']}/00LastStringX.txt"
     try:
         if mode == "Restore":
             import ast
@@ -768,5 +645,5 @@ write_last_info(mode="Restore")
 create_new_worker(work="update_terminal")
 create_new_worker(work="create_strings")
 create_new_worker(work="fetch_files_number_and_size")
-for i in range(max_threads - 3):  # -1 gets reserved for updating filesize etc
+for i in range(settings["max_threads"] - 3):  # -1 gets reserved for updating filesize etc
     create_new_worker(work="check_links")
