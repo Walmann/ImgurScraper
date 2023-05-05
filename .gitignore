@@ -1,3 +1,4 @@
 Archive/
 DB/
+__pycache__
 settings.ini
