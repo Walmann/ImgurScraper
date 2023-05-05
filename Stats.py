@@ -129,8 +129,8 @@ def update_terminal():
 
 
         # Add the totals row and footer
-        totals = f"Last refresh: {datetime.datetime.now().strftime('%H:%M:%S')}\n"
-        totals +=  f'Total filesize of Archive:  {info_if_empty(var_to_check=total_files_size_archive, string_to_print=filesize_format(total_files_size_archive))} ({info_if_empty(var_to_check=total_files_size_archive_current_folder, string_to_print=filesize_format(total_files_size_archive_current_folder))})\n'
+        totals =   f"Last refresh:               {datetime.datetime.now().strftime('%H:%M:%S')}\n"
+        totals +=  f'Total filesize of Archive:  {info_if_empty(var_to_check=total_files_size_archive, string_to_print=filesize_format(total_files_size_archive))}\n'
         totals +=  f'Total files in Archive:     {info_if_empty(total_files_archive, total_files_archive)}\n'
         totals +=  f'Total folders in Archive:   {info_if_empty(total_folders_archive, total_folders_archive)}\n'
         # totals += f'\n'
