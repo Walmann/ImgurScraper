@@ -30,4 +30,5 @@ if latest_commit_sha != current_commit_sha:
     origin.pull()
 
 # Run the ImgurDownloader script
+print("Staring ImgurDownloader.py")
 os.system("python3 ImgurDownloader.py")
