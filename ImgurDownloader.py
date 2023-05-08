@@ -10,11 +10,16 @@ import time
 from tokenize import String
 import uuid
 import requests
+import sqlite3 as sql
+
 
 from setup import setup_variables
-
+from  dep.db_handler import DB_handler
 
 settings = setup_variables()
+
+
+DB_Handler = DB_handler
 
 
 # Numbers used by update_terminal
@@ -84,8 +89,9 @@ def update_terminal():
     global work_queue
     pppIterations = 0
 
-    estimated_latest_string = get_last_file_name(settings["download_folder"])
+    # estimated_latest_string = get_last_file_name(settings["download_folder"])
 
+    # estimated_latest_string = DB_Handler.fetch_last_combination()
 
     while True:
         try:
@@ -147,7 +153,7 @@ def update_terminal():
             totals += f'Total iterations:              {total_iterations}\n'
             totals += f'Latest Iteration:              {latest_string}\n'
             totals += f'Iterations since last refresh: {total_iterations-pppIterations}\n'
-            totals += f'Estimated latest string:       {estimated_latest_string}\n'
+            # totals += f'Estimated latest string:       {estimated_latest_string}\n'
             totals += f'Lines in Error registry:       {ErrorFileLength}\n'
 
             # totals += '\n'
@@ -215,50 +221,53 @@ def fetch_checked_file(StringX):
     return file_path
 
 
-def is_string_used_IO(StringX):
-    sub_folder = StringX[
-        :-2
-    ]  # Use the first N-2 characters of the string as the prefix for the file name
-    file_path = (
-        # Construct the file path using the prefix
-        f'{settings["download_folder"]}/{sub_folder}'
-    )
+# def is_string_used_IO(StringX):
+#     sub_folder = StringX[
+#         :-2
+#     ]  # Use the first N-2 characters of the string as the prefix for the file name
+#     file_path = (
+#         # Construct the file path using the prefix
+#         f'{settings["download_folder"]}/{sub_folder}'
+#     )
 
-    # temp = os.path.abspath(file_path)
-    # temp2 = os.listdir(os.path.abspath(file_path))
-    try:
-        # for filename in temp2:
-        for filename in os.listdir(os.path.abspath(file_path)):
-            if StringX in filename.split(".")[0]:
-                return True
+#     # temp = os.path.abspath(file_path)
+#     # temp2 = os.listdir(os.path.abspath(file_path))
+#     try:
+#         # for filename in temp2:
+#         for filename in os.listdir(os.path.abspath(file_path)):
+#             if StringX in filename.split(".")[0]:
+#                 return True
 
-        return False
-    except FileNotFoundError:
-        return False
+#         return False
+#     except FileNotFoundError:
+#         return False
 
 
 def is_string_used(string="", firstRun=False):
+    temp= DB_Handler.search_for_string(string)
+    return temp
+    
     # if not os.path.exists(Checked_Strings_File):
     #     open(Checked_Strings_File, 'w').close()
+    # try:
+    #     if is_string_used_IO(string):
+    #         return True
+    #     with open(fetch_checked_file(string), "r") as f:
+    #         if string in f.read():
+    #             return True
+    #         # return string in f.read()
+    # except FileNotFoundError:
+    #     with open(fetch_checked_file(string), "w+") as f:
+    #         f.write("")
+    #     is_string_used(string, firstRun=firstRun)
 
-    try:
-        if is_string_used_IO(string):
-            return True
-        with open(fetch_checked_file(string), "r") as f:
-            if string in f.read():
-                return True
-            # return string in f.read()
-    except FileNotFoundError:
-        with open(fetch_checked_file(string), "w+") as f:
-            f.write("")
-        is_string_used(string, firstRun=firstRun)
 
-
-def write_string(string):
-    with open(fetch_checked_file(string), "a+") as f:
-        f.write(string + "\n")
-    # with open(Checked_Strings_File, 'a') as f:
-    #     f.write(string + '\n')
+# def write_string(string):
+    
+#     with open(fetch_checked_file(string), "a+") as f:
+#         f.write(string + "\n")
+#     # with open(Checked_Strings_File, 'a') as f:
+#     #     f.write(string + '\n')
 
 
 def write_error_string(error="", message="", StringX=""):
@@ -267,22 +276,22 @@ def write_error_string(error="", message="", StringX=""):
         current_time = now.strftime("%H:%M:%S")
 
         f.write(f"{current_time}: {message}. Error: {str(error)}\n")
-    if not StringX == "":
-        write_string(StringX)
+    # if not StringX == "":
+    #     write_string(StringX)
 
 
-def write_redirect_url(string):
-    with open(settings["redirect_urls_filename"], "a+") as f:
-        f.write(string + "\n")
-    write_string(string)
+# def write_redirect_url(string):
+#     with open(settings["redirect_urls_filename"], "a+") as f:
+#         f.write(string + "\n")
+#     write_string(string)
 
 
-def write_retry_strings(string):
-    with open(settings["retry_filename"], "a+") as f:
-        if string.endsWith("\n"):
-            f.write(string)
-        f.write(string + "\n")
-    write_string(string)
+# def write_retry_strings(string):
+#     with open(settings["retry_filename"], "a+") as f:
+#         if string.endsWith("\n"):
+#             f.write(string)
+#         f.write(string + "\n")
+#     write_string(string)
 
 
 
@@ -307,7 +316,10 @@ def download_image(string, response, current_worker_info):
     with open(file_path, "wb") as f:
         f.write(response.content)
         # print(f"Downloaded image {file_name}")
-        write_string(string)
+        # write_string(string)
+    file_size = get_file_size(file_path)
+    status_code = response.status_code
+    DB_handler.submit_new_StringX(StringX=string, response_code=int(status_code), was_image=True, file_path=file_path, file_size=file_size, message="Download_image")
     total_downloaded += 1
 
 
@@ -340,29 +352,30 @@ def check_links(current_worker_info, retries=0, response=None):
 
 
     if retries > 3:
-        try:
+        # try:
             update_worker_status(
                 "String failed. Writing down string and closing down.",
                 current_worker_info,
             )
-            write_error_string(
-                message=f"Error after trying 3 times. String {StringX}, Response code: {response.status_code}",
+            DB_Handler.submit_new_StringX(
+                message="Error after trying 3 times.",
+                response_code=int(response.status_code), 
                 StringX=StringX,
             )
             # write_string(StringX)
             return
-        except AttributeError as e:
-            update_worker_status(
-                "String failed. Writing down string and closing down.",
-                current_worker_info,
-            )
-            write_error_string(
-                message=f"Error after trying 3 times. String {StringX}, Response code: NOT AVAILABLE MOST LIKLEY FAILED RESPONSE",
-                error=e,
-                StringX=StringX,
-            )
-            # write_string(StringX)
-            return
+        # except AttributeError as e:
+        #     update_worker_status(
+        #         "String failed. Writing down string and closing down.",
+        #         current_worker_info,
+        #     )
+        #     DB_Handler(
+        #         message=f"Error after trying 3 times",
+        #         error=e,
+        #         StringX=StringX,
+        #     )
+        #     # write_string(StringX)
+        #     return
 
     update_worker_status("Checking if string is already used", current_worker_info)
     if is_string_used(StringX):
@@ -379,7 +392,7 @@ def check_links(current_worker_info, retries=0, response=None):
         )
         url = settings["url_base"] + StringX + ".jpg"
         response = requests.get(url, allow_redirects=False, timeout=15)
-        response_status = response.status_code
+        response_status = int(response.status_code)
         update_worker_status(
             f"Finished connecting to URL, retries: {retries}", current_worker_info
         )
@@ -400,22 +413,24 @@ def check_links(current_worker_info, retries=0, response=None):
         update_worker_status(
             "Got timeout. Adding to Retry list for later.", current_worker_info
         )
-        write_error_string(
-            message=f"Error with String {StringX}. Got Timeout Error. Adding to ErrorString and Retry List. Error: {e}",
+        DB_handler.submit_new_StringX(
+            message=f"Got Timeout Error. Error: {e}",
             StringX=StringX,
+            response_code=int(response_status)
         )
-        write_retry_strings(StringX)
+        # write_retry_strings(StringX)
+        # DB_handler.submit_new_StringX(StringX=StringX, response_code=response_status, was_image=False)
         pass
-    except Exception as e:
-        update_worker_status(
-            "Got Error. Writing down error, and continue.", current_worker_info
-        )
-        write_error_string(
-            message=f"Error with String {StringX}. Could not get response. Error: \n{e}",
-            StringX=StringX,
-        )
-        write_retry_strings(StringX)
-        pass
+    # except Exception as e:
+    #     update_worker_status(
+    #         "Got Error. Writing down error, and continue.", current_worker_info
+    #     )
+    #     write_error_string(
+    #         message=f"Error with String {StringX}. Could not get response. Error: \n{e}",
+    #         StringX=StringX,
+    #     )
+    #     write_retry_strings(StringX)
+    #     pass
 
     if response_status == 200:
         update_worker_status(
@@ -426,7 +441,8 @@ def check_links(current_worker_info, retries=0, response=None):
 
     if response_status == 302:
         update_worker_status("Got Status code 302. Skip this URL ", current_worker_info)
-        write_string(StringX)
+        # write_string(StringX)
+        DB_handler.submit_new_StringX(StringX=StringX, was_image=False, response_code=int(response_status), message="Status 302")
         total_tested += 1
         return
 
@@ -499,6 +515,9 @@ def get_file_length(file):
             line_count += 1
         return line_count
 
+def get_file_size(path):
+    temp = os.stat(path).st_size
+    return temp
 
 def fetch_files_number_and_size():
     while True:
@@ -521,36 +540,52 @@ def fetch_files_number_and_size():
 
 def create_strings(current_worker_info):
     global total_iterations
-    global latest_string
+    # global latest_string
 
     iterations_this_run = settings["max_iterations_per_run"]
 
-    Batched_before_save = 50
-
+    Batches_before_save = 50
+    Batches_ran = 0
     try:
         update_worker_status(
             message="I will now start generating combinations.",
             current_worker_info=current_worker_info,
         )
-        Caught_up_to_previous_value = False
 
+        
+        latest_gen = DB_Handler.fetch_last_combination()
+
+        Caught_up_to_previous_value = False
+        Batches_ran = Batches_before_save
         for combination in itertools.product(settings["character_list"], repeat=settings["generated_string_length"]):
-            StringX = "".join(combination)
-            latest_string = StringX
-            if not Caught_up_to_previous_value:
-                print(f"\rCreating combination {StringX}     ")
-                if StringX == latest_string_from_File:
-                    print("Found Starting point!")
-                    Caught_up_to_previous_value = True
-                if latest_string_from_File == "":
-                    pass
-                else:
+            if Caught_up_to_previous_value is False:
+                if not combination == latest_gen:
                     continue
+
+            Caught_up_to_previous_value = True
+            StringX = "".join(combination)
+
+            # latest_string = StringX
+            # if not Caught_up_to_previous_value:
+            #     print(f"\rCreating combination {StringX}     ")
+            #     if StringX == latest_string_from_File:
+            #         print("Found Starting point!")
+            #         Caught_up_to_previous_value = True
+            #     if latest_string_from_File == "":
+            #         pass
+            #     else:
+            #         continue
 
             update_worker_status(
                 message=f"I have made string {StringX}",
                 current_worker_info=current_worker_info,
             )
+
+            Batches_ran -=1
+            if Batches_ran <= 0:
+                write_last_info()
+                Batches_ran = Batches_before_save 
+
 
             total_iterations += 1
             if is_string_used(StringX):
@@ -660,8 +695,12 @@ def write_last_info(mode=""):
 # os.system("clear")
 
 # Load last StringX
-print("Loading last info")
-write_last_info(mode="Restore")
+# print("Loading last info")
+# write_last_info(mode="Restore")
+
+# Fetching SQL DB
+# SQLDB = sql.connect('file_db.db')
+
 
 print("Creating Workers ")
 create_new_worker(work="update_terminal")
