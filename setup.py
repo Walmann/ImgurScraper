@@ -77,6 +77,7 @@ def create_database(settings):
     if not os.path.isfile("file_db.db"):
         DB_handler.create_new_database()
         # Update database with current data:
+        print("Creating Database")
         for root, dirs, files in os.walk(settings["download_folder"]):
             for file in files:
                 path = os.path.join(root, file)
