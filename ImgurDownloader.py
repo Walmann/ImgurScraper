@@ -613,7 +613,8 @@ def create_strings(current_worker_info):
         work_queue.join()
     except Exception as e:
         # print(e)
-        write_error_string(error=e, StringX=StringX)
+        write_error_string(error=e)
+        # write_error_string(error=e, StringX=StringX)
 
 
 def create_new_worker(work):
