@@ -2,3 +2,5 @@ Archive/
 DB/
 __pycache__
 settings.ini
+file_db.db
+settings copy.ini
