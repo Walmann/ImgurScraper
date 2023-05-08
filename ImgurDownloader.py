@@ -614,6 +614,7 @@ def create_strings(current_worker_info):
     except Exception as e:
         # print(e)
         write_error_string(error=e)
+        raise Exception
         # write_error_string(error=e, StringX=StringX)
 
 
