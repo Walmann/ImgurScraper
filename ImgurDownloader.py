@@ -256,6 +256,10 @@ def is_string_used(string="", firstRun=False):
 
 
 def write_error_string(error="", message="", StringX=""):
+    if not os.path.isfile(ettings["error_filename"]):
+        with open(settings["error_filename"], "w+") as f:
+            f.write("")
+    
     with open(settings["error_filename"], "a+") as f:
         now = datetime.datetime.now()
         current_time = now.strftime("%H:%M:%S")
