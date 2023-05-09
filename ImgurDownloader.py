@@ -744,7 +744,11 @@ def write_last_info(mode=""):
     global total_iterations
     global latest_string_from_File
 
-    filePath = f"{settings['db_folder']}/00LastStringX.txt"
+    filePath = "/00LastStringX.txt" ## TODO Add this to settings file if it is still needed.
+    if not os.path.isfile(filePath):
+        with open(settings["error_filename"], "w+") as f:
+            f.write("")
+    
     try:
         if mode == "Restore":
             import ast
