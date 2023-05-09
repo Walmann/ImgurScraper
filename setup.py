@@ -81,6 +81,8 @@ def create_database(settings):
             for root,dirname, filenames in os.walk(settings["download_folder"], followlinks=True):
                 for dir in dirname:
                     print(dir)
+                for file in filenames:
+                    print(file)
             print(f"Can't find Download folder. {settings['download_folder']}")
         
         # Update database with current data:
