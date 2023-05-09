@@ -86,6 +86,9 @@ def create_database(settings):
         dirs = 0
         
         for root, dirnames, filenames in os.walk(settings["download_folder"]):
+            for dir in dirnames:
+                print(f"Dir: {dir}")
+
             for filename in filenames:
                 path = os.path.join(root, filename)
                 file_size = os.stat(path).st_size
