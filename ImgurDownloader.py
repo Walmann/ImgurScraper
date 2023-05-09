@@ -587,23 +587,25 @@ def create_strings(current_worker_info):
     Batches_before_save = 50
     Batches_ran = 0
     try:
-        update_worker_status(
-            message="I will now start generating combinations.",
-            current_worker_info=current_worker_info,
-        )
 
+        update_worker_status(message="Fetching latest generation from DB.",current_worker_info=current_worker_info)
         while True:
             # latest_gen = db_queue.put("fetch_last_combination")
             latest_gen = db_updater.fetch_last_combination()
             if latest_gen is not None:
                 break
 
+        update_worker_status(message=f"Fount latest gen: {latest_gen}. Will now try to catch up to latest_get",current_worker_info=current_worker_info)
         Caught_up_to_previous_value = False
-        Batches_ran = Batches_before_save
+        update_worker_status_delay = 50
         for combination in itertools.product(settings["character_list"], repeat=settings["generated_string_length"]):
             if Caught_up_to_previous_value is False:
+                update_worker_status_delay -=1
+                if update_worker_status_delay >= 0:
+                    update_worker_status(message=f"Still catching up! I' at: {combination}",current_worker_info=current_worker_info)
                 if not combination == latest_gen:
                     continue
+
 
             Caught_up_to_previous_value = True
             StringX = "".join(combination)
