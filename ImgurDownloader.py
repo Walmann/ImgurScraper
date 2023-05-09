@@ -7,14 +7,14 @@ import os
 import queue
 import threading
 import time
-from tokenize import String
 import uuid
 import requests
-import sqlite3 as sql
+from torch import Value
+# import sqlite3 as sql
 
 
 from setup import setup_variables
-from  dep.db_handler import DB_handler
+from dep.db_handler import DB_handler
 
 settings = setup_variables()
 
@@ -29,6 +29,7 @@ ErrorFileLength = 0
 
 
 work_queue = queue.Queue(maxsize=settings["max_queue_size"])
+db_queue = queue.Queue(maxsize=settings["max_queue_size"])
 
 # string_set = set()  # create an empty set to store the strings
 threads_amount = 0
@@ -72,6 +73,7 @@ def sizeof_fmt(num, suffix="B"):
         num /= 1024.0
     return f"{num:.1f} Yi{suffix}"
 
+
 def update_terminal():
     global current_workers
     global total_downloaded
@@ -106,8 +108,10 @@ def update_terminal():
             if not settings["worker_print_disable"]:
                 if settings["worker_print_mini"]:
                     for worker in current_workers.values():
-                        worker_rows.append(f"Workers: {f'{len(current_workers)}'}\n")
-                        workerBlock = (f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}")
+                        worker_rows.append(
+                            f"Workers: {f'{len(current_workers)}'}\n")
+                        workerBlock = (
+                            f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}")
                         if 'StringX' in worker:
                             workerBlock += f" -> {worker['StringX']}"
                         workerBlock += "\n"
@@ -115,43 +119,43 @@ def update_terminal():
 
                 if settings["worker_print_summary"]:
                     jobs_summary = {}
-                    
+
                     for worker in current_workers.values():
                         if worker["Current_Work"] in jobs_summary:
-                            jobs_summary[worker["Current_Work"]] +=1
+                            jobs_summary[worker["Current_Work"]] += 1
                         else:
                             jobs_summary[worker["Current_Work"]] = 1
                     for job in jobs_summary:
                         worker_rows.append(f"{job}: {jobs_summary[job]}\n")
 
-                    
-                else: 
+                else:
                     for worker in current_workers.values():
                         workerStats = ""
-                        worker_rows.append(f"Workers: {f'{len(current_workers)}'}\n")
+                        worker_rows.append(
+                            f"Workers: {f'{len(current_workers)}'}\n")
                         keys_to_ignore = ("WorkerID")
-                        
+
                         for item in worker.keys():
                             if item in keys_to_ignore:
                                 continue
-                            workerStats = workerStats + f"  {item}: {worker[item]}\n"
+                            workerStats = workerStats + \
+                                f"  {item}: {worker[item]}\n"
 
                         workerBlock = (
-                            f"Worker: {worker['WorkerID'][:8].upper()}\n" + workerStats + "\n"
+                            f"Worker: {worker['WorkerID'][:8].upper()}\n" +
+                            workerStats + "\n"
                         )
                         worker_rows.append(workerBlock)
-                    
-
 
             # Add the totals row and footer
-            totals =  f'Current session downloads:     {total_downloaded}\n'
+            totals = f'Current session downloads:     {total_downloaded}\n'
             totals += f'Current session URLs tested:   {total_tested}\n'
             totals += f'Number of threads:             {len(current_workers)}\n'
             totals += f'Queue length:                  {work_queue.maxsize}\n'
             totals += f'Download Folder:               {settings["download_folder"]}\n'
             totals += '\n'
             totals += f'Total iterations:              {total_iterations}\n'
-            totals += f'Latest Iteration:              {latest_string}\n'
+            totals += f'Latest Iteration:              {"".join(db_updater.fetch_last_combination())}\n'
             totals += f'Iterations since last refresh: {total_iterations-pppIterations}\n'
             # totals += f'Estimated latest string:       {estimated_latest_string}\n'
             totals += f'Lines in Error registry:       {ErrorFileLength}\n'
@@ -160,17 +164,13 @@ def update_terminal():
             # totals += f'Total number of files in archive folder: {str(archive_files_amount)}\n' # See "Stats.py" for this info
             # totals += f'Total size of archive folder (in bytes): {archive_files_size}\n'
 
-
-
-
             # Print the full status message
             footer = []
             for error in ErrorLogs:
                 footer.append(str(error) + "\n")
 
             print(f"{header}\n{totals}\n\n\n{''.join(worker_rows)}\n")
-            
-            
+
             if len(footer) >= 1:
                 print("Last 3 Error messages:\n")
             for error in footer[-3:]:
@@ -184,12 +184,12 @@ def update_terminal():
             else:
                 time.sleep(10)
 
-
         except Exception as e:
             # print(e)
             write_error_string(error=e)
             raise Exception(e)
             # exit()
+
 
 def get_last_file_name(directory):
     # Get a list of all files in the directory
@@ -202,14 +202,13 @@ def get_last_file_name(directory):
     last_folder_name = sorted_files[-1]
 
     file_list = os.listdir(f"{directory}/{last_folder_name}")
-    
+
     # Sort the files by name
     sorted_files = sorted(file_list)
-    
+
     # Get the last file in the list
     last_file_name = sorted_files[-1]
     return last_file_name.split(".")[0]
-
 
 
 def fetch_checked_file(StringX):
@@ -244,26 +243,13 @@ def fetch_checked_file(StringX):
 
 
 def is_string_used(string="", firstRun=False):
-    temp= DB_Handler.search_for_string(string)
+    # TODO Convert this to use db_updater, if that works better.
+    temp = DB_Handler.search_for_string(string)
     return temp
-    
-    # if not os.path.exists(Checked_Strings_File):
-    #     open(Checked_Strings_File, 'w').close()
-    # try:
-    #     if is_string_used_IO(string):
-    #         return True
-    #     with open(fetch_checked_file(string), "r") as f:
-    #         if string in f.read():
-    #             return True
-    #         # return string in f.read()
-    # except FileNotFoundError:
-    #     with open(fetch_checked_file(string), "w+") as f:
-    #         f.write("")
-    #     is_string_used(string, firstRun=firstRun)
 
 
 # def write_string(string):
-    
+
 #     with open(fetch_checked_file(string), "a+") as f:
 #         f.write(string + "\n")
 #     # with open(Checked_Strings_File, 'a') as f:
@@ -294,7 +280,6 @@ def write_error_string(error="", message="", StringX=""):
 #     write_string(string)
 
 
-
 def download_image(string, response, current_worker_info):
     global total_downloaded
     file_name = ""
@@ -319,7 +304,17 @@ def download_image(string, response, current_worker_info):
         # write_string(string)
     file_size = get_file_size(file_path)
     status_code = response.status_code
-    DB_handler.submit_new_StringX(StringX=string, response_code=int(status_code), was_image=True, file_path=file_path, file_size=file_size, message="Download_image")
+    # DB_handler.submit_new_stringX(StringX=string, response_code=int(status_code), was_image=True, file_path=file_path, file_size=file_size, message="Download_image")
+
+    db_queue.put({"work_type": "submit_new_stringX",
+                  "StringX": string,
+                  "response_code": int(status_code),
+                  "was_image": True,
+                  "file_path": file_path,
+                  "file_size": file_size,
+                  "message": "Download_image"
+                  })
+
     total_downloaded += 1
 
 
@@ -336,7 +331,8 @@ def get_file_extension(response):
 def update_worker_status(message, current_worker_info):
     global current_workers
 
-    current_workers[current_worker_info["WorkerID"]]["current_message"] = message
+    current_workers[current_worker_info["WorkerID"]
+                    ]["current_message"] = message
 
 
 def check_links(current_worker_info, retries=0, response=None):
@@ -350,20 +346,19 @@ def check_links(current_worker_info, retries=0, response=None):
     # Set string X from current_worker_info
     StringX = current_worker_info["StringX"]
 
-
     if retries > 3:
         # try:
-            update_worker_status(
-                "String failed. Writing down string and closing down.",
-                current_worker_info,
-            )
-            DB_Handler.submit_new_StringX(
-                message="Error after trying 3 times.",
-                response_code=int(response.status_code), 
-                StringX=StringX,
-            )
-            # write_string(StringX)
-            return
+        update_worker_status(
+            "String failed. Writing down string and closing down.",
+            current_worker_info,
+        )
+        db_queue.put({
+            "message": "Error after trying 3 times.",
+            "response_code": int(response.status_code),
+            "StringX": StringX,
+        })
+        # write_string(StringX)
+        return
         # except AttributeError as e:
         #     update_worker_status(
         #         "String failed. Writing down string and closing down.",
@@ -377,7 +372,8 @@ def check_links(current_worker_info, retries=0, response=None):
         #     # write_string(StringX)
         #     return
 
-    update_worker_status("Checking if string is already used", current_worker_info)
+    update_worker_status(
+        "Checking if string is already used", current_worker_info)
     if is_string_used(StringX):
         update_worker_status(
             "String is already used. Closing this worker.", current_worker_info
@@ -413,13 +409,14 @@ def check_links(current_worker_info, retries=0, response=None):
         update_worker_status(
             "Got timeout. Adding to Retry list for later.", current_worker_info
         )
-        DB_handler.submit_new_StringX(
-            message=f"Got Timeout Error. Error: {e}",
-            StringX=StringX,
-            response_code=int(response_status)
-        )
+        db_queue.put({
+            "work_type": "submit_new_stringX",
+            "message": f"Got Timeout Error. Error: {e}",
+            "StringX": StringX,
+            "response_code": int(response_status)
+        })
         # write_retry_strings(StringX)
-        # DB_handler.submit_new_StringX(StringX=StringX, response_code=response_status, was_image=False)
+        # DB_handler.submit_new_stringX(StringX=StringX, response_code=response_status, was_image=False)
         pass
     # except Exception as e:
     #     update_worker_status(
@@ -440,9 +437,16 @@ def check_links(current_worker_info, retries=0, response=None):
         return
 
     if response_status == 302:
-        update_worker_status("Got Status code 302. Skip this URL ", current_worker_info)
+        update_worker_status(
+            "Got Status code 302. Skip this URL ", current_worker_info)
         # write_string(StringX)
-        DB_handler.submit_new_StringX(StringX=StringX, was_image=False, response_code=int(response_status), message="Status 302")
+        db_queue.put({
+            "work_type": "submit_new_stringX",
+            "StringX": StringX,
+            "was_image": False,
+            "response_code": int(response_status),
+            "message": "Status 302"
+        })
         total_tested += 1
         return
 
@@ -503,9 +507,9 @@ def check_links_start(current_worker_info):
         StringX = work_queue.get()
         current_worker_info["StringX"] = StringX
         # current_worker_info["current_message"] = f"Got job with string {StringX}"
-        update_worker_status(f"Got job with string {StringX}", current_worker_info)
+        update_worker_status(
+            f"Got job with string {StringX}", current_worker_info)
         check_links(current_worker_info)
-
 
 
 def get_file_length(file):
@@ -515,9 +519,11 @@ def get_file_length(file):
             line_count += 1
         return line_count
 
+
 def get_file_size(path):
     temp = os.stat(path).st_size
     return temp
+
 
 def fetch_files_number_and_size():
     while True:
@@ -552,8 +558,11 @@ def create_strings(current_worker_info):
             current_worker_info=current_worker_info,
         )
 
-        
-        latest_gen = DB_Handler.fetch_last_combination()
+        while True:
+            # latest_gen = db_queue.put("fetch_last_combination")
+            latest_gen = db_updater.fetch_last_combination()
+            if latest_gen is not None:
+                break
 
         Caught_up_to_previous_value = False
         Batches_ran = Batches_before_save
@@ -581,11 +590,10 @@ def create_strings(current_worker_info):
                 current_worker_info=current_worker_info,
             )
 
-            Batches_ran -=1
+            Batches_ran -= 1
             if Batches_ran <= 0:
                 write_last_info()
-                Batches_ran = Batches_before_save 
-
+                Batches_ran = Batches_before_save
 
             total_iterations += 1
             if is_string_used(StringX):
@@ -594,7 +602,6 @@ def create_strings(current_worker_info):
                     message=f"The String {StringX} was used. Checking next combination.",
                 )
                 continue
-
 
             while True:
                 if work_queue.full():
@@ -617,12 +624,66 @@ def create_strings(current_worker_info):
         raise Exception
         # write_error_string(error=e, StringX=StringX)
 
+# class db_updater(StringX = "", file_path = "", file_size = 0, was_image = False, response_code = 0, message="Empty"):
+
+
+class db_updater():
+    # TODO Make other workers add things to the db_queue, so this worker can updater it.
+    # This is to mabye skip the I/O Errors
+    DB_Handler = DB_handler
+
+    def fetch_last_combination():
+        """
+        docstring
+        """
+        latest_gen = DB_Handler.fetch_last_combination()
+        return latest_gen
+
+    def loop_worker():
+        while True:
+            work = db_queue.get()
+
+            # StringX="",
+            # response_code=int(0),
+            # was_image="",
+            # file_path="",
+            # file_size=int(0),
+            # message=""
+
+            # StringX=work["StringX"],
+            # response_code=int(work["response_code"]),
+            # was_image=work["was_image"],
+            # file_path=work["file_path"],
+            # file_size=work["file_size"],
+            # message=work["message"]
+
+            if work["work_type"] == "submit_new_stringX":
+                kwargs = {}
+                try:
+                    for arg in work.keys():
+                        if arg in work:
+                            kwargs[arg] = work[arg]
+                        else:
+                            kwargs[arg] = None
+
+                    DB_handler.submit_new_stringX(**kwargs)
+                    # DB_handler.submit_new_stringX(
+                    #     StringX=StringX,
+                    #     response_code=response_code,
+                    #     was_image=was_image,
+                    #     file_path=file_path,
+                    #     file_size=file_size,
+                    #     message=message)
+                except Exception as e:
+                    raise Exception(e)
+            else:
+                raise ValueError(f"Invalid Work_type: {work['work_type']}")
+
 
 def create_new_worker(work):
     global ErrorLogs
     global current_workers
     global threads_amount
-
 
     # Create worker:
     current_worker_info = {
@@ -637,13 +698,21 @@ def create_new_worker(work):
         # current_workers[WorkerID]["current_message"] = f"Got job checking strings!"
         current_worker_info["current_message"] = "Got job checking strings!"
         # Create worker thread:
-        t = threading.Thread(target=check_links_start, args=(current_worker_info,))
+        t = threading.Thread(target=check_links_start,
+                             args=(current_worker_info,))
+
+    elif work == "db_worker":
+        # current_workers[WorkerID]["current_message"] = f"Got job checking strings!"
+        current_worker_info["current_message"] = "Got job working with the SQL DB!"
+        # Create worker thread:
+        t = threading.Thread(target=db_updater.loop_worker)
 
     elif work == "create_strings":
         # current_workers[WorkerID]["current_message"] = f"Got job creating links."
         current_worker_info["current_message"] = "Got job creating links."
         # Create worker thread:
-        t = threading.Thread(target=create_strings, args=(current_worker_info,))
+        t = threading.Thread(target=create_strings,
+                             args=(current_worker_info,))
 
     elif work == "update_terminal":
         # current_workers[WorkerID]["current_message"] = f"Got job updating Terminal."
@@ -657,7 +726,7 @@ def create_new_worker(work):
         # Create worker thread:
         t = threading.Thread(target=fetch_files_number_and_size)
     else:
-        print("Worker got no job.")
+        print(f"Worker got no job! Work: {work}")
         raise Exception("Worker got no job!")
 
     # Add worker to list:
@@ -672,7 +741,6 @@ def write_last_info(mode=""):
     global total_iterations
     global latest_string_from_File
 
-    
     filePath = f"{settings['db_folder']}/00LastStringX.txt"
     try:
         if mode == "Restore":
@@ -706,6 +774,7 @@ def write_last_info(mode=""):
 
 print("Creating Workers ")
 create_new_worker(work="update_terminal")
+create_new_worker(work="db_worker")
 create_new_worker(work="create_strings")
 create_new_worker(work="fetch_files_number_and_size")
 for i in range(settings["max_threads"]):

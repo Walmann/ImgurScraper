@@ -8,8 +8,8 @@ class DB_handler:
     @staticmethod
 
     def create_new_database():
-            DB_handler.runQuerry("CREATE TABLE IF NOT EXISTS FILESDB (StringX TEXT, file_path TEXT, file_size INT, was_image BOOL, response_code INT, message TEXT);",[])
-
+        DB_handler.runQuerry("CREATE TABLE IF NOT EXISTS FILESDB (StringX TEXT, file_path TEXT, file_size INT, was_image BOOL, response_code INT, message TEXT);",[])
+        return
 
     def runQuerry(querry, values):
         # if values:
@@ -45,7 +45,7 @@ class DB_handler:
         tuple_data = tuple(data[0][0]) if data else None
         return tuple_data
     
-    def submit_new_StringX(StringX = "", file_path = "", file_size = 0, was_image = False, response_code = 0, message="Empty"):
+    def submit_new_stringX(StringX = "", file_path = "", file_size = 0, was_image = False, response_code = 0, message="Empty", **kwargs):
         """Submit new StringX
 
         Args:
