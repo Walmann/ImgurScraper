@@ -74,8 +74,7 @@ def create_settings_file(): # TODO Update the created settings file
 
 
 def create_database(settings):
-    # os.path.isdir("Y:\000 - Download\Websites\ImgurImages\Archive/")
-    if os.path.isfile("file_db.db"):
+    if not os.path.isfile("file_db.db"):
         DB_handler.create_new_database()
 
         if not os.path.isdir(settings["download_folder"]):
