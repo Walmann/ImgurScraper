@@ -9,13 +9,20 @@ import threading
 import time
 import uuid
 import requests
+from sqlalchemy import true
 # import sqlite3 as sql
 
 
-from setup import setup_variables
+from setup import setup_variables, create_database
 from dep.db_handler import DB_handler
 
+# Setup variables and SQLDB
 settings = setup_variables()
+DB_finnished = create_database(settings)
+
+while true:
+    if DB_finnished is True:
+        break
 
 
 DB_Handler = DB_handler
@@ -588,7 +595,7 @@ def create_strings(current_worker_info):
     Batches_ran = 0
     try:
 
-        update_worker_status(message="Fetching latest generation from DB.",current_worker_info=current_worker_info)
+        update_worker_status(message="Fetching latest generation from DB. (This takes some time on very large)",current_worker_info=current_worker_info)
         while True:
             # latest_gen = db_queue.put("fetch_last_combination")
             latest_gen = db_updater.fetch_last_combination()
@@ -712,22 +719,22 @@ class db_updater():
             else:
                 raise ValueError(f"Invalid Work_type: {work['work_type']}")
 
-def create_database(settings):
-    if not os.path.isfile("file_db.db"):
-        DB_handler.create_new_database()
-        # Update database with current data:
-        print("Creating Database")
-        for root, dirs, files in os.walk(settings["download_folder"]):
-            for file in files:
-                path = os.path.join(root, file)
-                file_size = os.stat(path).st_size
-                StringX = file.split(".")[0]
+# def create_database(settings):
+#     if not os.path.isfile("file_db.db"):
+#         DB_handler.create_new_database()
+#         # Update database with current data:
+#         print("Creating Database")
+#         for root, dirs, files in os.walk(settings["download_folder"]):
+#             for file in files:
+#                 path = os.path.join(root, file)
+#                 file_size = os.stat(path).st_size
+#                 StringX = file.split(".")[0]
                 
-                DB_handler.submit_new_StringX(StringX = StringX, file_path=path, file_size=file_size, was_image=True, response_code=200)
-                # filename_tuple = tuple(StringX)
-                # file_path = os.path.join(dir, file)
-                # sqlquerry = "INSERT INTO FILESDB (StringX, file_path, file_size, was_image, message) values(?, ?, ?, ?, ?)"
-                # con.execute(sqlquerry, (StringX, file, file_size, True, ""))
+#                 DB_handler.submit_new_StringX(StringX = StringX, file_path=path, file_size=file_size, was_image=True, response_code=200)
+#                 # filename_tuple = tuple(StringX)
+#                 # file_path = os.path.join(dir, file)
+#                 # sqlquerry = "INSERT INTO FILESDB (StringX, file_path, file_size, was_image, message) values(?, ?, ?, ?, ?)"
+#                 # con.execute(sqlquerry, (StringX, file, file_size, True, ""))
 
 
 def create_new_worker(work):
@@ -824,7 +831,7 @@ def create_new_worker(work):
 # Fetching SQL DB
 # SQLDB = sql.connect('file_db.db')
 
-create_database(settings)
+# create_database(settings)
 
 
 print("Creating Workers ")
