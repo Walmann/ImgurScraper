@@ -95,7 +95,8 @@ def create_database(settings):
                         path = os.path.join(root2, filename)
                         file_size = os.stat(path).st_size
                         StringX = filename.split(".")[0]
-                        if itt >= 0:
+                        itt -= 1
+                        if itt <= 0:
                             print(f"Added file {filename}", end="\r")
                             itt = 50
                         DB_handler.submit_new_stringX(StringX=StringX, file_path=path, file_size=file_size, was_image=True, response_code=200)
