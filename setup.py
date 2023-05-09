@@ -90,6 +90,8 @@ def create_database(settings):
                 path = os.path.join(root, filename)
                 file_size = os.stat(path).st_size
                 StringX = filename.split(".")[0]
+
+                print(f"File: {filename}")
                 
                 DB_handler.submit_new_StringX(StringX=StringX, file_path=path, file_size=file_size, was_image=True, response_code=200)
 
