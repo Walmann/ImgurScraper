@@ -743,7 +743,7 @@ def create_new_worker(work):
         "WorkerID": str(uuid.uuid4()),
     }
 
-    print(f"Creating worker {work}. Info: {current_worker_info}")
+    # print(f"Creating worker {work}. Info: {current_worker_info}")
     # Give worker a job:
     if work == "check_links":
         
