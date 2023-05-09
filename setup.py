@@ -44,9 +44,10 @@ def create_settings_file(): # TODO Update the created settings file
 
 ;;;; Output settings ;;;;
 ; Make workers in the Workerblock smaller. Usefull if you got many threads
-;worker_print_mini = False
-;worker_print_summary = False
-;worker_print_disable = False
+;worker_print_mini = True
+;worker_print_summary = True
+;worker_print_disable = True
+;worker_print_hide_check_links_workers = True
 
 
 ;;;; Folder names ;;;;
@@ -118,8 +119,6 @@ def setup_variables():
     # Default settings:
     returning_settings = {
         "check_for_DB_missmatch": False,
-        "worker_print_mini": False,
-        "worker_print_disable":  False,
         "checked_url_filename": "0checkedURLs.txt",
         "db_folder_path_suffix": "DB",
         "download_folder_root_location": ".",
@@ -138,7 +137,10 @@ def setup_variables():
         "character_list": "",
         "generated_string_length": 5,
         "url_base": "https://i.imgur.com/",
+        "worker_print_mini": False,
+        "worker_print_disable":  False,
         "worker_print_summary": False,
+        "worker_print_hide_check_links_workers": False
 
     }
     # Settings currently not used, but still want to have around:
@@ -189,6 +191,7 @@ def setup_variables():
     returning_settings['worker_print_mini'] = config.get('DEFAULT','worker_print_mini',fallback=returning_settings['worker_print_mini'],)
     returning_settings['worker_print_disable'] = config.get('DEFAULT','worker_print_disable',fallback=returning_settings['worker_print_disable'],)
     returning_settings['worker_print_summary'] = config.get('DEFAULT','worker_print_summary',fallback=returning_settings['worker_print_summary'],)
+    returning_settings['worker_print_hide_check_links_workers'] = config.get('DEFAULT','worker_print_hide_check_links_workers',fallback=returning_settings['worker_print_hide_check_links_workers'],)
 
     # create_database(returning_settings)
     return returning_settings

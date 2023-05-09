@@ -105,6 +105,7 @@ def update_terminal():
 
             # if StartedWork:
             if not settings["worker_print_disable"]:
+
                 if settings["worker_print_mini"]:
                     for worker in current_workers.values():
                         worker_rows.append(
@@ -116,7 +117,7 @@ def update_terminal():
                         workerBlock += "\n"
                         worker_rows.append(workerBlock)
 
-                if settings["worker_print_summary"]:
+                elif settings["worker_print_summary"]:
                     jobs_summary = {}
 
                     for worker in current_workers.values():
@@ -126,7 +127,36 @@ def update_terminal():
                             jobs_summary[worker["Current_Work"]] = 1
                     for job in jobs_summary:
                         worker_rows.append(f"{job}: {jobs_summary[job]}\n")
+                
+                elif settings["worker_print_hide_check_links_workers"]:
+                    workers_in_hiding = 0
 
+                    # Print how many workers exists
+                    worker_rows.append(f"Total workers: {f'{len(current_workers)}'}\n")
+                    for worker in current_workers.values():
+                        #Filter out Check_links workers
+                        if worker["Current_Work"] == "check_links":
+                            workers_in_hiding +=1
+                            continue
+
+                        workerStats = ""
+                        
+                        # Collect and append key values, filter out items in keys_to_ignore
+                        keys_to_ignore = ("WorkerID")
+                        for item in worker.keys():
+                            if item in keys_to_ignore:
+                                continue
+                            workerStats = workerStats + \
+                                f"  {item}: {worker[item]}\n"
+
+                        # Initiate the section for this current worker
+                        workerBlock = (
+                            f"Worker: {worker['WorkerID'][:8].upper()}\n" +
+                            workerStats + "\n"
+                        )
+                        worker_rows.append(workerBlock)
+                    if workers_in_hiding >= 1:
+                        worker_rows.append(f"\nHiding {workers_in_hiding} workers.")
                 else:
                     for worker in current_workers.values():
                         workerStats = ""
@@ -341,7 +371,7 @@ def update_worker_status(message, current_worker_info):
 
 def check_links(current_worker_info, retries=0, response=None):
     global total_tested
-    global current_workers
+    # global current_workers
     global ErrorLogs
 
     global StartedWork
@@ -594,10 +624,10 @@ def create_strings(current_worker_info):
                 current_worker_info=current_worker_info,
             )
 
-            Batches_ran -= 1
-            if Batches_ran <= 0:
-                # write_last_info()
-                Batches_ran = Batches_before_save
+            # Batches_ran -= 1
+            # if Batches_ran <= 0:
+            #     # write_last_info()
+            #     Batches_ran = Batches_before_save
 
             total_iterations += 1
             if is_string_used(StringX):
@@ -643,7 +673,8 @@ class db_updater():
         latest_gen = DB_Handler.fetch_last_combination()
         return latest_gen
 
-    def loop_worker():
+    def loop_worker(current_worker_info):
+        update_worker_status(message="Starting to check db_queue for work", current_worker_info=current_worker_info)
         while True:
             work = db_queue.get()
 
@@ -661,6 +692,8 @@ class db_updater():
             # file_size=work["file_size"],
             # message=work["message"]
 
+            
+            update_worker_status(message=f"Starting to work with {work['work_type']}", current_worker_info=current_worker_info)
             if work["work_type"] == "submit_new_stringX":
                 kwargs = {}
                 try:
@@ -670,6 +703,7 @@ class db_updater():
                         else:
                             kwargs[arg] = None
 
+                    update_worker_status(message=f"Sending {work['work_type']} to DB_Handler. StringX: {work['StringX']}", current_worker_info=current_worker_info)
                     DB_handler.submit_new_stringX(**kwargs)
                     
                 except Exception as e:
@@ -712,33 +746,32 @@ def create_new_worker(work):
     print(f"Creating worker {work}. Info: {current_worker_info}")
     # Give worker a job:
     if work == "check_links":
-        # current_workers[WorkerID]["current_message"] = f"Got job checking strings!"
+        
         current_worker_info["current_message"] = "Got job checking strings!"
         # Create worker thread:
-        t = threading.Thread(target=check_links_start,
-                             args=(current_worker_info,))
+        t = threading.Thread(target=check_links_start, args=(current_worker_info,))
 
     elif work == "db_worker":
-        # current_workers[WorkerID]["current_message"] = f"Got job checking strings!"
+        
         current_worker_info["current_message"] = "Got job working with the SQL DB!"
         # Create worker thread:
-        t = threading.Thread(target=db_updater.loop_worker)
+        t = threading.Thread(target=db_updater.loop_worker, args=(current_worker_info,))
 
     elif work == "create_strings":
-        # current_workers[WorkerID]["current_message"] = f"Got job creating links."
+        
         current_worker_info["current_message"] = "Got job creating links."
         # Create worker thread:
         t = threading.Thread(target=create_strings,
                              args=(current_worker_info,))
 
     elif work == "update_terminal":
-        # current_workers[WorkerID]["current_message"] = f"Got job updating Terminal."
+        
         current_worker_info["current_message"] = "Got job updating Terminal."
         # Create worker thread:
         t = threading.Thread(target=update_terminal)
 
     elif work == "fetch_files_number_and_size":
-        # current_workers[WorkerID]["current_message"] = f"Got job updating Terminal."
+        
         current_worker_info["current_message"] = "Got job updating Terminal."
         # Create worker thread:
         t = threading.Thread(target=fetch_files_number_and_size)
@@ -750,7 +783,7 @@ def create_new_worker(work):
     current_workers[current_worker_info["WorkerID"]] = current_worker_info
 
     t.daemon = False
-    current_worker_info["current_message"] = "Got all my settings!"
+    # current_worker_info["current_message"] = "Got all my settings!"
     t.start()
 
 
