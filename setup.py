@@ -78,31 +78,31 @@ def create_database(settings):
         DB_handler.create_new_database()
 
         if not os.path.isdir(settings["download_folder"]):
-            print(f"Can't find Downlad folder. {settings['download_folder']}")
+            print(f"Can't find Download folder. {settings['download_folder']}")
+        
         # Update database with current data:
         print("Creating Database")
-        for root, dirs, files in os.walk(settings["download_folder"]):
-            for file in files:
-                path = os.path.join(root, file)
+        files = 0
+        dirs = 0
+        
+        for root, dirnames, filenames in os.walk(settings["download_folder"]):
+            for filename in filenames:
+                path = os.path.join(root, filename)
                 file_size = os.stat(path).st_size
-                StringX = file.split(".")[0]
+                StringX = filename.split(".")[0]
                 
-                DB_handler.submit_new_StringX(StringX = StringX, file_path=path, file_size=file_size, was_image=True, response_code=200)
-                # filename_tuple = tuple(StringX)
-                # file_path = os.path.join(dir, file)
-                # sqlquerry = "INSERT INTO FILESDB (StringX, file_path, file_size, was_image, message) values(?, ?, ?, ?, ?)"
-                # con.execute(sqlquerry, (StringX, file, file_size, True, ""))
-    
-            
-    
-        # with con:
+                DB_handler.submit_new_StringX(StringX=StringX, file_path=path, file_size=file_size, was_image=True, response_code=200)
+
+        # Print database contents
         data = DB_handler.runQuerry("select * from FILESDB", ())
         for row in data: 
             print(row)
 
-        input("Finished creating database from aldready downloaded files. Press Enter and restart script.")
+        input("Finished creating database from already downloaded files. Press Enter and restart script.")
         sys.exit()
+
     return True
+
 
 
 def setup_variables():
