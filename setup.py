@@ -1,10 +1,8 @@
-from fileinput import filename
-from genericpath import isfile
 import os
 import configparser
 import sys
-import sqlite3 as sql
-from  dep.db_handler import DB_handler
+# import sqlite3 as sql
+# from  dep.db_handler import DB_handler
 
 def create_settings_file(): # TODO Update the created settings file
     """

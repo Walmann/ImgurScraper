@@ -36,7 +36,7 @@ class DB_handler:
 
 
     def fetch_last_combination():
-        data = DB_handler.runQuerry("select * from FILESDB", ())
+        # data = DB_handler.runQuerry("select * from FILESDB", ())
         # for row in data:
         #     print(row)
         query = "SELECT * FROM FILESDB ORDER BY StringX DESC LIMIT 1"

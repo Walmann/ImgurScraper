@@ -669,9 +669,6 @@ class db_updater():
     DB_Handler = DB_handler
 
     def fetch_last_combination():
-        """
-        docstring
-        """
         latest_gen = DB_Handler.fetch_last_combination()
         return latest_gen
 
