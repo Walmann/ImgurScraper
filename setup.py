@@ -77,7 +77,7 @@ def create_database(settings):
     if not os.path.isfile("file_db.db"):
         DB_handler.create_new_database()
 
-        if not os.path.isdir(settings["download_folder"]):
+        if os.path.isdir(settings["download_folder"]):
             print(f"Can't find Download folder. {settings['download_folder']}")
         
         # Update database with current data:
