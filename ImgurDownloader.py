@@ -175,7 +175,7 @@ def update_terminal():
             for error in footer[-3:]:
                 print(str(error) + "\n")
 
-            write_last_info()
+            # write_last_info()
             pppIterations = total_iterations
 
             if StartedWork:
@@ -595,7 +595,7 @@ def create_strings(current_worker_info):
 
             Batches_ran -= 1
             if Batches_ran <= 0:
-                write_last_info()
+                # write_last_info()
                 Batches_ran = Batches_before_save
 
             total_iterations += 1
@@ -670,17 +670,30 @@ class db_updater():
                             kwargs[arg] = None
 
                     DB_handler.submit_new_stringX(**kwargs)
-                    # DB_handler.submit_new_stringX(
-                    #     StringX=StringX,
-                    #     response_code=response_code,
-                    #     was_image=was_image,
-                    #     file_path=file_path,
-                    #     file_size=file_size,
-                    #     message=message)
+                    
                 except Exception as e:
                     raise Exception(e)
+            # if work["work_type"] == "submit_new_stringX":
+
             else:
                 raise ValueError(f"Invalid Work_type: {work['work_type']}")
+
+def create_database(settings):
+    if not os.path.isfile("file_db.db"):
+        DB_handler.create_new_database()
+        # Update database with current data:
+        print("Creating Database")
+        for root, dirs, files in os.walk(settings["download_folder"]):
+            for file in files:
+                path = os.path.join(root, file)
+                file_size = os.stat(path).st_size
+                StringX = file.split(".")[0]
+                
+                DB_handler.submit_new_StringX(StringX = StringX, file_path=path, file_size=file_size, was_image=True, response_code=200)
+                # filename_tuple = tuple(StringX)
+                # file_path = os.path.join(dir, file)
+                # sqlquerry = "INSERT INTO FILESDB (StringX, file_path, file_size, was_image, message) values(?, ?, ?, ?, ?)"
+                # con.execute(sqlquerry, (StringX, file, file_size, True, ""))
 
 
 def create_new_worker(work):
@@ -740,33 +753,33 @@ def create_new_worker(work):
     t.start()
 
 
-def write_last_info(mode=""):
-    global total_iterations
-    global latest_string_from_File
+# def write_last_info(mode=""):
+#     global total_iterations
+#     global latest_string_from_File
 
-    filePath = "/00LastStringX.txt" ## TODO Add this to settings file if it is still needed.
-    if not os.path.isfile(filePath):
-        with open(settings["error_filename"], "w+") as f:
-            f.write("")
+#     filePath = "/00LastStringX.txt" ## TODO Add this to settings file if it is still needed.
+#     if not os.path.isfile(filePath):
+#         with open(settings["error_filename"], "w+") as f:
+#             f.write("")
     
-    try:
-        if mode == "Restore":
-            import ast
+#     try:
+#         if mode == "Restore":
+#             import ast
 
-            try:
-                with open(filePath, "r+") as file:
-                    # latest_string_from_File, total_iterations = tuple(file.read())
-                    tuple_value = ast.literal_eval(file.read())
-                    latest_string_from_File, total_iterations = tuple_value
-                    return
-            except SyntaxError:
-                return
+#             try:
+#                 with open(filePath, "r+") as file:
+#                     # latest_string_from_File, total_iterations = tuple(file.read())
+#                     tuple_value = ast.literal_eval(file.read())
+#                     latest_string_from_File, total_iterations = tuple_value
+#                     return
+#             except SyntaxError:
+#                 return
 
-    except FileNotFoundError:
-        return
-    with open(filePath, "w+") as file:
-        tuple = (latest_string, total_iterations)
-        file.write(str(tuple))
+#     except FileNotFoundError:
+#         return
+#     with open(filePath, "w+") as file:
+#         tuple = (latest_string, total_iterations)
+#         file.write(str(tuple))
 
 
 # os.system("clear")
@@ -778,11 +791,13 @@ def write_last_info(mode=""):
 # Fetching SQL DB
 # SQLDB = sql.connect('file_db.db')
 
+create_database(settings)
+
 
 print("Creating Workers ")
 create_new_worker(work="update_terminal")
 create_new_worker(work="db_worker")
 create_new_worker(work="create_strings")
-create_new_worker(work="fetch_files_number_and_size")
+# create_new_worker(work="fetch_files_number_and_size") # No need for this after converting to sqlite
 for i in range(settings["max_threads"]):
     create_new_worker(work="check_links")
