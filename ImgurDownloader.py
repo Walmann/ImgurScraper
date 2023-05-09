@@ -256,7 +256,7 @@ def is_string_used(string="", firstRun=False):
 
 
 def write_error_string(error="", message="", StringX=""):
-    if not os.path.isfile(ettings["error_filename"]):
+    if not os.path.isfile(settings["error_filename"]):
         with open(settings["error_filename"], "w+") as f:
             f.write("")
     
