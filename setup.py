@@ -73,22 +73,22 @@ def create_settings_file(): # TODO Update the created settings file
         sys.exit()
 
 
-def create_database(settings):
-    if not os.path.isfile("file_db.db"):
-        DB_handler.create_new_database()
-        # Update database with current data:
-        print("Creating Database")
-        for root, dirs, files in os.walk(settings["download_folder"]):
-            for file in files:
-                path = os.path.join(root, file)
-                file_size = os.stat(path).st_size
-                StringX = file.split(".")[0]
+# def create_database(settings):
+#     if not os.path.isfile("file_db.db"):
+#         DB_handler.create_new_database()
+#         # Update database with current data:
+#         print("Creating Database")
+#         for root, dirs, files in os.walk(settings["download_folder"]):
+#             for file in files:
+#                 path = os.path.join(root, file)
+#                 file_size = os.stat(path).st_size
+#                 StringX = file.split(".")[0]
                 
-                DB_handler.submit_new_StringX(StringX = StringX, file_path=path, file_size=file_size, was_image=True, response_code=200)
-                # filename_tuple = tuple(StringX)
-                # file_path = os.path.join(dir, file)
-                # sqlquerry = "INSERT INTO FILESDB (StringX, file_path, file_size, was_image, message) values(?, ?, ?, ?, ?)"
-                # con.execute(sqlquerry, (StringX, file, file_size, True, ""))
+#                 DB_handler.submit_new_StringX(StringX = StringX, file_path=path, file_size=file_size, was_image=True, response_code=200)
+#                 # filename_tuple = tuple(StringX)
+#                 # file_path = os.path.join(dir, file)
+#                 # sqlquerry = "INSERT INTO FILESDB (StringX, file_path, file_size, was_image, message) values(?, ?, ?, ?, ?)"
+#                 # con.execute(sqlquerry, (StringX, file, file_size, True, ""))
     
             
     
@@ -190,7 +190,7 @@ def setup_variables():
     returning_settings['worker_print_disable'] = config.get('DEFAULT','worker_print_disable',fallback=returning_settings['worker_print_disable'],)
     returning_settings['worker_print_summary'] = config.get('DEFAULT','worker_print_summary',fallback=returning_settings['worker_print_summary'],)
 
-    create_database(returning_settings)
+    # create_database(returning_settings)
     return returning_settings
 
 # setup_variables()
