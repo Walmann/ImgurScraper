@@ -212,7 +212,7 @@ def update_terminal():
             if StartedWork:
                 time.sleep(0.5)
             else:
-                time.sleep(10)
+                time.sleep(5)
 
         except Exception as e:
             # print(e)
