@@ -152,9 +152,12 @@ def setup_variables():
     returning_settings["db_folder_path_suffix"] = config.get("DEFAULT","db_folder_path_suffix",fallback=returning_settings["db_folder_path_suffix"],)
     returning_settings["download_folder_root_location"] = config.get("DEFAULT","download_folder_root_location",fallback=returning_settings["download_folder_root_location"],)
     returning_settings["download_folder_name"] = config.get("DEFAULT","download_folder_name",fallback=returning_settings["download_folder_name"],)
-    returning_settings["error_filename"] = f"{returning_settings['download_folder_root_location']}/{returning_settings['db_folder_path_suffix']}/{config.get('DEFAULT', 'error_filename', fallback=returning_settings['error_filename'])}"
-    returning_settings["redirect_urls_filename"] = f"{returning_settings['download_folder_root_location']}/{returning_settings['db_folder_path_suffix']}/{config.get('DEFAULT', 'redirect_urls_filename', fallback=returning_settings['redirect_urls_filename'])}"  # noqa: E501
-    returning_settings["retry_filename"] = f"{returning_settings['download_folder_root_location']}/{returning_settings['db_folder_path_suffix']}/{config.get('DEFAULT', 'retry_filename', fallback=returning_settings['retry_filename'])}"
+    returning_settings["error_filename"] = f"{config.get('DEFAULT', 'error_filename', fallback=returning_settings['error_filename'])}"
+    returning_settings["redirect_urls_filename"] = f"{config.get('DEFAULT', 'redirect_urls_filename', fallback=returning_settings['redirect_urls_filename'])}"  # noqa: E501
+    returning_settings["retry_filename"] = f"{config.get('DEFAULT', 'retry_filename', fallback=returning_settings['retry_filename'])}"
+    # returning_settings["error_filename"] = f"{returning_settings['download_folder_root_location']}/{returning_settings['db_folder_path_suffix']}/{config.get('DEFAULT', 'error_filename', fallback=returning_settings['error_filename'])}"
+    # returning_settings["redirect_urls_filename"] = f"{returning_settings['download_folder_root_location']}/{returning_settings['db_folder_path_suffix']}/{config.get('DEFAULT', 'redirect_urls_filename', fallback=returning_settings['redirect_urls_filename'])}"  # noqa: E501
+    # returning_settings["retry_filename"] = f"{returning_settings['download_folder_root_location']}/{returning_settings['db_folder_path_suffix']}/{config.get('DEFAULT', 'retry_filename', fallback=returning_settings['retry_filename'])}"
 
     # Folder location variables, that use other variables when created.
     returning_settings["checked_url_filename"] = f"{returning_settings['download_folder_root_location']}/{returning_settings['db_folder_path_suffix']}/{config.get('DEFAULT', 'checked_url_filename', fallback=returning_settings['checked_url_filename'])}"  # noqa: E501
