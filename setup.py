@@ -1,3 +1,4 @@
+from genericpath import isdir
 import os
 import configparser
 import sys
@@ -75,6 +76,9 @@ def create_settings_file(): # TODO Update the created settings file
 def create_database(settings):
     if not os.path.isfile("file_db.db"):
         DB_handler.create_new_database()
+
+        if not os.path.isdir(settings["download_folder"]):
+            print(f"Can't find Downlad folder. {settings['download_folder']}")
         # Update database with current data:
         print("Creating Database")
         for root, dirs, files in os.walk(settings["download_folder"]):
