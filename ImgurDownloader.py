@@ -19,7 +19,7 @@ from dep.db_handler import DB_handler
 settings = setup_variables()
 DB_finnished = create_database(settings)
 
-while true:
+while True:
     if DB_finnished is True:
         break
 
