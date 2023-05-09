@@ -74,10 +74,11 @@ def create_settings_file(): # TODO Update the created settings file
 
 
 def create_database(settings):
-    if not os.path.isfile("file_db.db"):
+    # os.path.isdir("Y:\000 - Download\Websites\ImgurImages\Archive/")
+    if os.path.isfile("file_db.db"):
         DB_handler.create_new_database()
 
-        if os.path.isdir(settings["download_folder"]):
+        if not os.path.isdir(settings["download_folder"]):
             print(f"Can't find Download folder. {settings['download_folder']}")
         
         # Update database with current data:
@@ -85,18 +86,19 @@ def create_database(settings):
         files = 0
         dirs = 0
         
-        for root, dirnames, filenames in os.walk(settings["download_folder"]):
+        itt = 50
+        for root, dirnames, filenames in os.walk(settings["download_folder"], followlinks=True):
             for dir in dirnames:
-                print(f"Dir: {dir}")
-
-            for filename in filenames:
-                path = os.path.join(root, filename)
-                file_size = os.stat(path).st_size
-                StringX = filename.split(".")[0]
-
-                print(f"File: {filename}")
-                
-                DB_handler.submit_new_StringX(StringX=StringX, file_path=path, file_size=file_size, was_image=True, response_code=200)
+                dir2 = os.path.join(root,dir)
+                for root2, dirnames2, filenames2 in os.walk(dir2):
+                    for filename in filenames2:
+                        path = os.path.join(root2, filename)
+                        file_size = os.stat(path).st_size
+                        StringX = filename.split(".")[0]
+                        if itt >= 0:
+                            print(f"Added file {filename}", end="\r")
+                            itt = 50
+                        DB_handler.submit_new_stringX(StringX=StringX, file_path=path, file_size=file_size, was_image=True, response_code=200)
 
         # Print database contents
         data = DB_handler.runQuerry("select * from FILESDB", ())
