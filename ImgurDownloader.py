@@ -154,7 +154,7 @@ def update_terminal():
             totals += f'Download Folder:               {settings["download_folder"]}\n'
             totals += '\n'
             totals += f'Total iterations:              {total_iterations}\n'
-            totals += f'Latest Iteration:              {"".join(db_updater.fetch_last_combination())}\n'
+            totals += f'Latest Iteration:              {db_updater.fetch_last_combination()}\n'
             totals += f'Iterations since last refresh: {total_iterations-pppIterations}\n'
             # totals += f'Estimated latest string:       {estimated_latest_string}\n'
             totals += f'Lines in Error registry:       {ErrorFileLength}\n'
