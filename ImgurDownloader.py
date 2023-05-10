@@ -126,7 +126,6 @@ def update_terminal():
 
                 elif settings["worker_print_summary"]:
                     jobs_summary = {}
-
                     for worker in current_workers.values():
                         if worker["Current_Work"] in jobs_summary:
                             jobs_summary[worker["Current_Work"]] += 1

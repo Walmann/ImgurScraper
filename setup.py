@@ -1,4 +1,3 @@
-from genericpath import isdir
 import os
 import configparser
 import sys
@@ -196,7 +195,7 @@ def setup_variables():
     returning_settings["max_queue_size"] = int(config.get("DEFAULT", "max_queue_size", fallback=returning_settings["max_queue_size"]))
 
     # Settings about the URL that are geing created
-    returning_settings["character_list"] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    returning_settings["character_list"] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     returning_settings["generated_string_length"] = int(config.get("DEFAULT", "string_length", fallback=returning_settings["string_length"]))
     # returning_settings["url_base"] = "https://i.imgur.com/"
     returning_settings["url_base"] = config.get("DEFAULT", "url_base", fallback=returning_settings["url_base"])
