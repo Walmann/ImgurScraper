@@ -114,14 +114,14 @@ def update_terminal():
             if not settings["worker_print_disable"]:
 
                 if settings["worker_print_mini"]:
+                    worker_rows.append(f"Workers: {f'{len(current_workers)}'}\n")
                     for worker in current_workers.values():
-                        worker_rows.append(
-                            f"Workers: {f'{len(current_workers)}'}\n")
-                        workerBlock = (
-                            f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}, {worker['current_message']}")
+                        workerBlock = (f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}, {worker['current_message']}")
+                        
                         if 'StringX' in worker:
                             workerBlock += f" -> {worker['StringX']}"
                         workerBlock += "\n"
+                        
                         worker_rows.append(workerBlock)
 
                 elif settings["worker_print_summary"]:
@@ -605,9 +605,6 @@ def create_strings(current_worker_info):
     # global latest_string
 
     iterations_this_run = settings["max_iterations_per_run"]
-
-    Batches_before_save = 50
-    Batches_ran = 0
     try:
 
         update_worker_status(message="Fetching latest generation from DB. (This takes some time on very large)",current_worker_info=current_worker_info)
