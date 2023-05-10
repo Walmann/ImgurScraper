@@ -411,6 +411,7 @@ def check_links(current_worker_info, retries=0, response=None):
             current_worker_info,
         )
         db_queue.put({
+            "work_type": "submit_new_stringX",
             "message": "Error after trying 3 times.",
             "response_code": int(response.status_code),
             "StringX": StringX,
