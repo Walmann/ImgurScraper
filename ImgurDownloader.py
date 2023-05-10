@@ -348,11 +348,14 @@ def download_image(string, response, current_worker_info):
     file_path = os.path.join(dir_name, file_name)
 
     update_worker_status("Writing image to file", current_worker_info)
-    with open(file_path, "wb") as f:
-        f.write(response.content)
-        # print(f"Downloaded image {file_name}")
-        # write_string(string)
-
+    try:
+        with open(file_path, "wb") as f:
+            f.write(response.content)
+            # print(f"Downloaded image {file_name}")
+            # write_string(string)
+    except Exception as e:
+        update_worker_status(f"Error writing file: {e}", current_worker_info)
+        raise Exception
     # Collect some data about the image    
     file_size = get_file_size(file_path)
     status_code = response.status_code
