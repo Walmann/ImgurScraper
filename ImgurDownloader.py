@@ -418,28 +418,7 @@ def check_links(current_worker_info, retries=0, response=None):
         })
         # write_string(StringX)
         return
-        # except AttributeError as e:
-        #     update_worker_status(
-        #         "String failed. Writing down string and closing down.",
-        #         current_worker_info,
-        #     )
-        #     DB_Handler(
-        #         message=f"Error after trying 3 times",
-        #         error=e,
-        #         StringX=StringX,
-        #     )
-        #     # write_string(StringX)
-        #     return
-
-    # update_worker_status(
-    #     "Checking if string is already used", current_worker_info)
-    # if is_string_used(StringX):
-    #     update_worker_status(
-    #         "String is already used. Closing this worker.", current_worker_info
-    #     )
-    #     total_tested += 1
-    #     return
-
+        
     try:
         response_status = 0
         update_worker_status(
@@ -518,7 +497,7 @@ def check_links(current_worker_info, retries=0, response=None):
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
         check_links(
-            current_worker_info=current_worker_info, retires=retries, response=response
+            current_worker_info=current_worker_info, retries=retries, response=response
         )
 
     if response_status == 104:
@@ -530,7 +509,7 @@ def check_links(current_worker_info, retries=0, response=None):
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
         check_links(
-            current_worker_info=current_worker_info, retires=retries, response=response
+            current_worker_info=current_worker_info, retries=retries, response=response
         )
 
     if response_status == 500:
