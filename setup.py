@@ -76,18 +76,18 @@ def create_database(settings):
     if not os.path.isfile("file_db.db"):
         DB_handler.create_new_database()
 
-        if os.path.isdir(settings["download_folder"]):
-            for root,dirname, filenames in os.walk(settings["download_folder"], followlinks=True):
-                for dir in dirname:
-                    print(dir)
-                for file in filenames:
-                    print(file)
-            print(f"Can't find Download folder. {settings['download_folder']}")
+        # if os.path.isdir(settings["download_folder"]):
+        #     for root,dirname, filenames in os.walk(settings["download_folder"], followlinks=True):
+        #         for dir in dirname:
+        #             print(dir)
+        #         for file in filenames:
+        #             print(file)
+        #     print(f"Can't find Download folder. {settings['download_folder']}")
         
-        # Update database with current data:
-        print("Creating Database")
-        files = 0
-        dirs = 0
+        # # Update database with current data:
+        # print("Creating Database")
+        # files = 0
+        # dirs = 0
         
         itt = 50
         # TODO BUG Can't os.walk the files.
