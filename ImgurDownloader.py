@@ -405,6 +405,10 @@ def check_links(current_worker_info, retries=0, response=None):
     StringX = current_worker_info["StringX"]
 
     if retries > 3:
+        # If error is 429 (blocked by host) wait 1 minute before trying again, then reset the retries counter.
+        if response.status_code == 429:
+            time.wait(60)
+            retries = 0
         # try:
         update_worker_status(
             "String failed. Writing down string and closing down.",
