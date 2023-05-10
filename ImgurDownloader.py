@@ -510,13 +510,13 @@ def check_links(current_worker_info, retries=0, response=None):
         return
 
     if response_status == 429:
+        retries += 1
         update_worker_status(
-            f"Got Status code {response_status}, blocked by host. Retrying",
+            f"Got Status code {response_status}, blocked by host. Retrying: {retries}",
             current_worker_info,
         )
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
-        retries += 1
         check_links(
             current_worker_info=current_worker_info, retires=retries, response=response
         )
