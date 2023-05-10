@@ -118,7 +118,7 @@ def update_terminal():
                         worker_rows.append(
                             f"Workers: {f'{len(current_workers)}'}\n")
                         workerBlock = (
-                            f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}")
+                            f"{worker['WorkerID'][:8].upper()}: {worker['Current_Work']}, {worker['current_message']}")
                         if 'StringX' in worker:
                             workerBlock += f" -> {worker['StringX']}"
                         workerBlock += "\n"
