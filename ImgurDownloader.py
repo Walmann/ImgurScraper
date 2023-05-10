@@ -512,7 +512,7 @@ def check_links(current_worker_info, retries=0, response=None):
     if response_status == 429:
         retries += 1
         update_worker_status(
-            f"Got Status code {response_status}, blocked by host. Retrying: {retries}",
+            f"Got Status code {response_status}, blocked by host. Retries left: {retries}",
             current_worker_info,
         )
         # We have been blocked by the host. Wait for a little bit and try again.
@@ -522,38 +522,38 @@ def check_links(current_worker_info, retries=0, response=None):
         )
 
     if response_status == 104:
+        retries += 1
         update_worker_status(
             f"Got Status code {response_status}, Connection Reset From Host. Retries left: {retries}",
             current_worker_info,
         )
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
-        retries += 1
         check_links(
             current_worker_info=current_worker_info, retires=retries, response=response
         )
 
     if response_status == 500:
+        retries += 1
         update_worker_status(
             f"Got Status code {response_status}, Connection Reset From Host. Retries left: {retries}",
             current_worker_info,
         )
         # We have been blocked by the host. Wait for a little bit and try again.
         time.sleep(5)
-        retries += 1
         check_links(
             current_worker_info=current_worker_info, retries=retries, response=response
         )
 
+    retries += 1
     update_worker_status(
-        f"Got unknow status code: {response_status}. Writing down error, put String into file of strings to try later, then continue.",
+        f"Got unknow status code: {response_status}. Writing down error, put String into file of strings to try later, then continue. Retries left: {retries}",
         current_worker_info,
     )
     # write_error_string(f"Error with String {StringX}. Got unknown Status code: {response_status}")
     # write_retry_strings(StringX)
 
     time.sleep(5)
-    retries += 1
     check_links(
         current_worker_info=current_worker_info, retries=retries, response=response
     )
