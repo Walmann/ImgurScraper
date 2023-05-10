@@ -340,7 +340,7 @@ def download_image(string, response, current_worker_info):
     
     # Create folder to download inside.
     update_worker_status("Configurating Filepath", current_worker_info)
-    dir_name = os.path.join(settings["download_folder"], file_name[:4])
+    dir_name = os.path.join(settings["download_folder"], file_name[:5])
     if not os.path.exists(dir_name):
         os.makedirs(dir_name, exist_ok=True)
 
