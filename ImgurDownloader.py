@@ -10,6 +10,7 @@ import time
 import uuid
 import requests
 # import sqlite3 as sql
+# import ftplib
 
 
 from setup import setup_variables, create_database
@@ -320,6 +321,14 @@ def write_error_string(error="", message="", StringX=""):
 #     write_string(string)
 
 
+# def transfer_to_ftp():
+#     session = ftplib.FTP('server.address.com','USERNAME','PASSWORD')
+#     file = open('kitten.jpg','rb')                  # file to send
+#     session.storbinary('STOR kitten.jpg', file)     # send the file
+#     file.close()                                    # close file and FTP
+#     session.quit()
+
+
 def download_image(string, response, current_worker_info):
     global total_downloaded
     file_name = ""
@@ -329,9 +338,11 @@ def download_image(string, response, current_worker_info):
     update_worker_status(
         f"Got file extension and filename {file_name}", current_worker_info
     )
-    dir_name = os.path.join(settings["download_folder"], file_name[:3])
-
+    
+    
+    # Create folder to download inside.
     update_worker_status("Configurating Filepath", current_worker_info)
+    dir_name = os.path.join(settings["download_folder"], file_name[:4])
     if not os.path.exists(dir_name):
         os.makedirs(dir_name, exist_ok=True)
 
@@ -342,9 +353,14 @@ def download_image(string, response, current_worker_info):
         f.write(response.content)
         # print(f"Downloaded image {file_name}")
         # write_string(string)
+
+    # Collect some data about the image    
     file_size = get_file_size(file_path)
     status_code = response.status_code
-    # DB_handler.submit_new_stringX(StringX=string, response_code=int(status_code), was_image=True, file_path=file_path, file_size=file_size, message="Download_image")
+    
+
+    # TODO Upload to FTP, if NFS does not work
+
 
     db_queue.put({"work_type": "submit_new_stringX",
                   "StringX": string,

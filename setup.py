@@ -91,6 +91,7 @@ def create_database(settings):
         dirs = 0
         
         itt = 50
+        # TODO BUG Can't os.walk the files.
         for root, dirnames, filenames in os.walk(settings["download_folder"], followlinks=True):
             for dir in dirnames:
                 dir2 = os.path.join(root,dir)

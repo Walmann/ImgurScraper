@@ -42,7 +42,7 @@ class DB_handler:
         query = "SELECT * FROM FILESDB ORDER BY StringX DESC LIMIT 1"
         data = DB_handler.runQuerry(query, ())
         # tuple_data = tuple(data[0][0])
-        tuple_data = tuple(data[0][0]) if data else None
+        tuple_data = tuple(data[0][0]) if data else tuple()
         return tuple_data
     
     def submit_new_stringX(StringX = "", file_path = "", file_size = 0, was_image = False, response_code = 0, message="Empty", **kwargs):
