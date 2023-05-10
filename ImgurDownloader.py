@@ -183,13 +183,12 @@ def update_terminal():
                         worker_rows.append(workerBlock)
 
             # Add the totals row and footer
-            totals = f'Current session downloads:     {total_downloaded}\n'
+            totals = f'Current session downloads:      {total_downloaded}\n'
             totals += f'Current session URLs tested:   {total_tested}\n'
             totals += f'Number of threads:             {len(current_workers)}\n'
             totals += f'Queue length:                  {work_queue.qsize()}\n'
             totals += f'Queue max length:              {work_queue.maxsize}\n'
             totals += f'Download Folder:               {settings["download_folder"]}\n'
-            totals += '\n'
             totals += f'Total iterations:              {total_iterations}\n'
             totals += f'Latest Iteration:              {db_updater.fetch_last_combination()}\n'
             totals += f'Iterations since last refresh: {total_iterations-pppIterations}\n'
@@ -201,16 +200,16 @@ def update_terminal():
             # totals += f'Total size of archive folder (in bytes): {archive_files_size}\n'
 
             # Print the full status message
-            footer = []
-            for error in ErrorLogs:
-                footer.append(str(error) + "\n")
+            # footer = []
+            # for error in ErrorLogs:
+            #     footer.append(str(error) + "\n")
 
-            print(f"{header}\n{totals}\n{''.join(worker_rows)}")
+            print(f"{header}{totals}\n{''.join(worker_rows)}")
 
-            if len(footer) >= 1:
-                print("Last 3 Error messages:\n")
-            for error in footer[-3:]:
-                print(str(error) + "\n")
+            # if len(footer) >= 1:
+            #     print("Last 3 Error messages:\n")
+            # for error in footer[-3:]:
+            #     print(str(error) + "\n")
 
             # write_last_info()
             pppIterations = total_iterations
