@@ -194,7 +194,7 @@ def update_terminal():
             totals += f'Latest Iteration:              {db_updater.fetch_last_combination()}\n'
             totals += f'Iterations since last refresh: {total_iterations-pppIterations}\n'
             # totals += f'Estimated latest string:       {estimated_latest_string}\n'
-            totals += f'Lines in Error registry:       {ErrorFileLength}\n'
+            totals += f'Lines in Error registry:       {ErrorFileLength}'
 
             # totals += '\n'
             # totals += f'Total number of files in archive folder: {str(archive_files_amount)}\n' # See "Stats.py" for this info
@@ -205,7 +205,7 @@ def update_terminal():
             for error in ErrorLogs:
                 footer.append(str(error) + "\n")
 
-            print(f"{header}\n{totals}\n\n\n{''.join(worker_rows)}\n")
+            print(f"{header}\n{totals}\n{''.join(worker_rows)}")
 
             if len(footer) >= 1:
                 print("Last 3 Error messages:\n")
@@ -852,6 +852,7 @@ def create_new_worker(work):
 
 # create_database(settings)
 
+# TODO I really want to make this into a WebUI, but i don't have the time right now...
 
 print("Creating Workers ")
 create_new_worker(work="update_terminal")
