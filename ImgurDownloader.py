@@ -429,14 +429,14 @@ def check_links(current_worker_info, retries=0, response=None):
         #     # write_string(StringX)
         #     return
 
-    update_worker_status(
-        "Checking if string is already used", current_worker_info)
-    if is_string_used(StringX):
-        update_worker_status(
-            "String is already used. Closing this worker.", current_worker_info
-        )
-        total_tested += 1
-        return
+    # update_worker_status(
+    #     "Checking if string is already used", current_worker_info)
+    # if is_string_used(StringX):
+    #     update_worker_status(
+    #         "String is already used. Closing this worker.", current_worker_info
+    #     )
+    #     total_tested += 1
+    #     return
 
     try:
         response_status = 0
@@ -660,12 +660,12 @@ def create_strings(current_worker_info):
             #     Batches_ran = Batches_before_save
 
             total_iterations += 1
-            if is_string_used(StringX):
-                update_worker_status(
-                    current_worker_info=current_worker_info,
-                    message=f"The String {StringX} was used. Checking next combination.",
-                )
-                continue
+            # if is_string_used(StringX):
+            #     update_worker_status(
+            #         current_worker_info=current_worker_info,
+            #         message=f"The String {StringX} was used. Checking next combination.",
+            #     )
+            #     continue
 
             while True:
                 if work_queue.full():
