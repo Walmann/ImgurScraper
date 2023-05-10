@@ -560,14 +560,17 @@ def check_links(current_worker_info, retries=0, response=None):
 
 def check_links_start(current_worker_info):
     while True:
-        current_worker_info["current_message"] = "Now i wait for a job from the Queue!"
-        StringX = work_queue.get()
-        current_worker_info["StringX"] = StringX
-        # current_worker_info["current_message"] = f"Got job with string {StringX}"
-        update_worker_status(
-            f"Got job with string {StringX}", current_worker_info)
-        check_links(current_worker_info)
-
+        try:
+            current_worker_info["current_message"] = "Now i wait for a job from the Queue!"
+            StringX = work_queue.get()
+            current_worker_info["StringX"] = StringX
+            # current_worker_info["current_message"] = f"Got job with string {StringX}"
+            update_worker_status(
+                f"Got job with string {StringX}", current_worker_info)
+            check_links(current_worker_info)
+        except Exception as e:
+            write_error_string(e)
+            raise Exception(e)
 
 def get_file_length(file):
     line_count = 0
@@ -678,7 +681,7 @@ def create_strings(current_worker_info):
                 break
 
         # Wait for all tasks to complete
-        work_queue.join()
+        # work_queue.join()
     except Exception as e:
         # print(e)
         write_error_string(error=e)
