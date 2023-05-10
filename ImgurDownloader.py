@@ -625,8 +625,12 @@ def create_strings(current_worker_info):
                 update_worker_status_delay -=1
                 if update_worker_status_delay >= 0:
                     update_worker_status(message=f"Still catching up! I' at: {combination}",current_worker_info=current_worker_info)
-                if not combination == latest_gen:
+                
+                if latest_gen == tuple():
+                    pass
+                elif not combination == latest_gen:
                     continue
+
 
 
             Caught_up_to_previous_value = True
