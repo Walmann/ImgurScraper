@@ -541,7 +541,7 @@ def retrive_response(current_worker_info, StringX, recive_head = False, retries 
     return response
 
 
-def check_links(current_worker_info, retries=0, response=None):
+def check_links(current_worker_info, retries=0):
     global total_tested
     # global current_workers
     global ErrorLogs
@@ -554,7 +554,9 @@ def check_links(current_worker_info, retries=0, response=None):
 
     # Get HEAD and check status_code
     status = retrive_response(current_worker_info=current_worker_info, StringX=StringX, recive_head=True)
-
+    
+    if status == None:
+        return
     # If 200 send response_content to Download Image
     if status.status_code == 200: 
         response = retrive_response(current_worker_info=current_worker_info, StringX=StringX, recive_head=False)
