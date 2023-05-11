@@ -484,7 +484,7 @@ def retrive_response(current_worker_info, StringX, recive_head = False, retries 
     elif response_status == 429:
         retries += 1
         temp = response
-        # If error is 429 (blocked by host) wait 1 minute before trying again, then reset the retries counter.
+        # If error is 429 (blocked by host) wait 2 minutes before trying again, then reset the retries counter.
         if response.status_code == 429:
             timeleft = 120
             while True:
@@ -541,7 +541,7 @@ def retrive_response(current_worker_info, StringX, recive_head = False, retries 
     return response
 
 
-def check_links(current_worker_info, retries=0):
+def check_links(current_worker_info, retries=0, response=None):
     global total_tested
     # global current_workers
     global ErrorLogs
