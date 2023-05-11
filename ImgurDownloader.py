@@ -394,10 +394,7 @@ def update_worker_status(message, current_worker_info):
 
 def retrive_response(current_worker_info, StringX, recive_head = False, retries = 0):
     if retries > 3:
-        # If error is 429 (blocked by host) wait 1 minute before trying again, then reset the retries counter.
-        if response.status_code == 429:
-            time.wait(120)
-            retries = 0
+ 
         # try:
         update_worker_status(
             "String failed. Writing down string and closing down.",
@@ -410,7 +407,7 @@ def retrive_response(current_worker_info, StringX, recive_head = False, retries 
             "StringX": StringX,
         })
         # write_string(StringX)
-        return
+        return 
         
     try:
         response_status = 0
@@ -420,7 +417,7 @@ def retrive_response(current_worker_info, StringX, recive_head = False, retries 
 
         url = settings["url_base"] + StringX + ".jpg"
         
-        if recive_head:
+        if recive_head is True:
             response = requests.head(url, allow_redirects=False, timeout=15)
         else:
             response = requests.get(url, allow_redirects=False, timeout=15)
@@ -466,7 +463,8 @@ def retrive_response(current_worker_info, StringX, recive_head = False, retries 
     #     write_retry_strings(StringX)
     #     pass
 
-    if response_status == 200: update_worker_status( "Got Status code 200. Downloading image. ", current_worker_info)
+    if response_status == 200: 
+        update_worker_status( "Got Status code 200. Downloading image. ", current_worker_info)
         
         
 
@@ -485,12 +483,20 @@ def retrive_response(current_worker_info, StringX, recive_head = False, retries 
     elif response_status == 429:
         retries += 1
         temp = response
-        update_worker_status(
-            f"Got Status code {response_status}, blocked by host. Retries left: {retries}",
-            current_worker_info,
-        )
+        # If error is 429 (blocked by host) wait 1 minute before trying again, then reset the retries counter.
+        if response.status_code == 429:
+            timeleft = 120
+            while True:
+                if timeleft <= 0:
+                    break
+                update_worker_status(f"Got Status code {response_status}, blocked by host. Time until retry: {timeleft}",current_worker_info,)
+                time.sleep(1)
+                timeleft -=1
+                
+            retries = 0
         # We have been blocked by the host. Wait for a little bit and try again.
-        time.sleep(5)
+        update_worker_status(f"Got Status code {response_status}, blocked by host. Retries left: {retries}",current_worker_info,)
+        # time.sleep(5)
         check_links(
             current_worker_info=current_worker_info, retries=retries, response=response
         )
@@ -566,6 +572,8 @@ def check_links_start(current_worker_info):
         except Exception as e:
             write_error_string(e)
             raise Exception(e)
+
+
 
 def get_file_length(file):
     line_count = 0
