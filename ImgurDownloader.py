@@ -486,7 +486,7 @@ def retrive_response(current_worker_info, StringX, recive_head = False, retries 
         temp = response
         # If error is 429 (blocked by host) wait 2 minutes before trying again, then reset the retries counter.
         if response.status_code == 429:
-            timeleft = 120
+            timeleft = 90
             while True:
                 if timeleft <= 0:
                     break

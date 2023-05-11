@@ -38,6 +38,7 @@ def create_settings_file(): # TODO Update the created settings file
 ;;;; Optimization ;;;
 ;Check for missmatch between the Database and the actual files inside of the Archive. 
 ;check_for_DB_missmatch = False
+;429_status_code_wait_time = 90
 
 
 ;;;; Output settings ;;;;
@@ -157,7 +158,8 @@ def setup_variables():
         "worker_print_mini": False,
         "worker_print_disable":  False,
         "worker_print_summary": False,
-        "worker_print_hide_check_links_workers": False
+        "worker_print_hide_check_links_workers": False,
+        "429_status_code_wait_time": 90
 
     }
     # Settings currently not used, but still want to have around:
@@ -203,6 +205,7 @@ def setup_variables():
 
     # Optimization settings. These are optional, but if you want to make sure that the DB is OK, these should be enables.
     returning_settings["check_for_DB_missmatch"] = int(config.get("DEFAULT","check_for_DB_missmatch",fallback=returning_settings["check_for_DB_missmatch"],))
+    returning_settings["429_status_code_wait_time"] = int(config.get("DEFAULT","429_status_code_wait_time",fallback=returning_settings["429_status_code_wait_time"],))
 
     # Output settings: 
     returning_settings['worker_print_mini'] = config.get('DEFAULT','worker_print_mini',fallback=returning_settings['worker_print_mini'],)
