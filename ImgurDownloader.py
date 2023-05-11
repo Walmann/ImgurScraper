@@ -392,7 +392,8 @@ def update_worker_status(message, current_worker_info):
     current_workers[current_worker_info["WorkerID"]
                     ]["current_message"] = message
 
-def retrive_response(current_worker_info, StringX, recive_head = False, retries = 0):
+def retrive_response(current_worker_info, StringX, recive_head = False, retries = 0, response=None):
+    global total_tested
     if retries > 3:
  
         # try:
