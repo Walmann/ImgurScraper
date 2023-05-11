@@ -330,6 +330,8 @@ def write_error_string(error="", message="", StringX=""):
 
 def download_image(string, response, current_worker_info):
     global total_downloaded
+
+    
     file_name = ""
     update_worker_status("Getting file extension", current_worker_info)
     file_extension = get_file_extension(response)
@@ -361,8 +363,6 @@ def download_image(string, response, current_worker_info):
     status_code = response.status_code
     
 
-    # TODO Upload to FTP, if NFS does not work
-
 
     db_queue.put({"work_type": "submit_new_stringX",
                   "StringX": string,
@@ -392,22 +392,11 @@ def update_worker_status(message, current_worker_info):
     current_workers[current_worker_info["WorkerID"]
                     ]["current_message"] = message
 
-
-def check_links(current_worker_info, retries=0, response=None):
-    global total_tested
-    # global current_workers
-    global ErrorLogs
-
-    global StartedWork
-    StartedWork = True
-
-    # Set string X from current_worker_info
-    StringX = current_worker_info["StringX"]
-
+def retrive_response(current_worker_info, StringX, recive_head = False):
     if retries > 3:
         # If error is 429 (blocked by host) wait 1 minute before trying again, then reset the retries counter.
         if response.status_code == 429:
-            time.wait(60)
+            time.wait(120)
             retries = 0
         # try:
         update_worker_status(
@@ -428,8 +417,14 @@ def check_links(current_worker_info, retries=0, response=None):
         update_worker_status(
             f"Connecting to URL, retries: {retries}", current_worker_info
         )
+
         url = settings["url_base"] + StringX + ".jpg"
-        response = requests.get(url, allow_redirects=False, timeout=15)
+        
+        if recive_head:
+            response = requests.head(url, allow_redirects=False, timeout=15)
+        else:
+            response = requests.get(url, allow_redirects=False, timeout=15)
+        
         response_status = int(response.status_code)
         update_worker_status(
             f"Finished connecting to URL, retries: {retries}", current_worker_info
@@ -471,17 +466,12 @@ def check_links(current_worker_info, retries=0, response=None):
     #     write_retry_strings(StringX)
     #     pass
 
-    if response_status == 200:
-        update_worker_status(
-            "Got Status code 200. Downloading image. ", current_worker_info
-        )
-        download_image(StringX, response, current_worker_info)
-        return
+    if response_status == 200: update_worker_status( "Got Status code 200. Downloading image. ", current_worker_info)
+        
+        
 
-    if response_status == 302:
-        update_worker_status(
-            "Got Status code 302. Skip this URL ", current_worker_info)
-        # write_string(StringX)
+    elif response_status == 302:
+        update_worker_status("Got Status code 302. Skip this URL ", current_worker_info)
         db_queue.put({
             "work_type": "submit_new_stringX",
             "StringX": StringX,
@@ -492,8 +482,9 @@ def check_links(current_worker_info, retries=0, response=None):
         total_tested += 1
         return
 
-    if response_status == 429:
+    elif response_status == 429:
         retries += 1
+        temp = response
         update_worker_status(
             f"Got Status code {response_status}, blocked by host. Retries left: {retries}",
             current_worker_info,
@@ -504,7 +495,7 @@ def check_links(current_worker_info, retries=0, response=None):
             current_worker_info=current_worker_info, retries=retries, response=response
         )
 
-    if response_status == 104:
+    elif response_status == 104:
         retries += 1
         update_worker_status(
             f"Got Status code {response_status}, Connection Reset From Host. Retries left: {retries}",
@@ -516,7 +507,7 @@ def check_links(current_worker_info, retries=0, response=None):
             current_worker_info=current_worker_info, retries=retries, response=response
         )
 
-    if response_status == 500:
+    elif response_status == 500:
         retries += 1
         update_worker_status(
             f"Got Status code {response_status}, Connection Reset From Host. Retries left: {retries}",
@@ -527,21 +518,40 @@ def check_links(current_worker_info, retries=0, response=None):
         check_links(
             current_worker_info=current_worker_info, retries=retries, response=response
         )
+    else: 
+        retries += 1
+        update_worker_status(
+            f"Got unknow status code: {response_status}. Writing down error, put String into file of strings to try later, then continue. Retries left: {retries}",
+            current_worker_info,
+        )
+        # write_error_string(f"Error with String {StringX}. Got unknown Status code: {response_status}")
+        # write_retry_strings(StringX)
 
-    retries += 1
-    update_worker_status(
-        f"Got unknow status code: {response_status}. Writing down error, put String into file of strings to try later, then continue. Retries left: {retries}",
-        current_worker_info,
-    )
-    # write_error_string(f"Error with String {StringX}. Got unknown Status code: {response_status}")
-    # write_retry_strings(StringX)
+        time.sleep(5)
+        check_links(
+            current_worker_info=current_worker_info, retries=retries, response=response
+        )
+    return response
 
-    time.sleep(5)
-    check_links(
-        current_worker_info=current_worker_info, retries=retries, response=response
-    )
-    return
 
+def check_links(current_worker_info, retries=0, response=None):
+    global total_tested
+    # global current_workers
+    global ErrorLogs
+
+    global StartedWork
+    StartedWork = True
+
+    # Set string X from current_worker_info
+    StringX = current_worker_info["StringX"]
+
+    # Get HEAD and check status_code
+    status = retrive_response(current_worker_info=current_worker_info, StringX=StringX, recive_head=True)
+
+    # If 200 send response_content to Download Image
+    if status.status_code == 200: 
+        response = retrive_response(current_worker_info=current_worker_info, StringX=StringX, recive_head=False)
+        download_image(string=StringX,current_worker_info=current_worker_info, response=response)
 
 def check_links_start(current_worker_info):
     while True:
