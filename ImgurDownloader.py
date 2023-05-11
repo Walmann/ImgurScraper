@@ -392,7 +392,7 @@ def update_worker_status(message, current_worker_info):
     current_workers[current_worker_info["WorkerID"]
                     ]["current_message"] = message
 
-def retrive_response(current_worker_info, StringX, recive_head = False):
+def retrive_response(current_worker_info, StringX, recive_head = False, retries = 0):
     if retries > 3:
         # If error is 429 (blocked by host) wait 1 minute before trying again, then reset the retries counter.
         if response.status_code == 429:
